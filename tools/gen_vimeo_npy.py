@@ -46,5 +46,8 @@ def find(pattern, path):
                 sys.stdout.write('\r'+root + " ... decoded and encoded")
     return result
 
-folder = find('im1.png', '/mnt/WindowsDev/DataSets/vimeo_septuplet/sequences/')
-np.save('folder_cloud.npy', folder)
+if __name__ == "__main__":
+    # generate npy file containing all the paths
+    folder = find('im1.png', '/mnt/WindowsDev/DataSets/vimeo_septuplet/sequences/')
+    np.save('folder_cloud_test.npy', folder)
+

@@ -1,8 +1,0 @@
-scipy==1.5.2
-matplotlib~=3.4.3
-tensorflow~=2.6.0
-keras~=2.6.0
-psnr-hvsm==0.1.0
-opencv-python
-scikit-image
-pywavelets
