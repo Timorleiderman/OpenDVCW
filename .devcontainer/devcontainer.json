@@ -1,0 +1,27 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.217.1/containers/docker-existing-dockerfile
+{
+	"name": "Existing Dockerfile",
+
+	// Sets the run context to one level up instead of the .devcontainer folder.
+	"context": "..",
+
+	// Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
+	"dockerFile": "../Dockerfile",
+
+	// Set *default* container specific settings.json values on container create.
+	"settings": {},
+	
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [
+		"ms-python.python",
+		"donjayamanne.python-environment-manager",
+		"yzhang.markdown-all-in-one",
+		"ms-python.python",
+		"ms-toolsai.jupyter",
+		"knisterpeter.vscode-github"
+	],
+
+	"runArgs": ["--privileged=true", "-v", "/mnt/:/mnt/","--gpus", "all", "--user", "1000:1000", "-p", "6006:6006"]
+	
+}
