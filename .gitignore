@@ -34,3 +34,5 @@ please_save.somthing.data-00000-of-00001
 backup/*
 logs/*
 Test_com/*
+*.npy
+*.npz
