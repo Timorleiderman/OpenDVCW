@@ -105,6 +105,7 @@ class OpticalFlowConvert(tf.keras.layers.Layer):
 
         return res
 
+
 class OpticalFlowLoss(tf.keras.layers.Layer):
     def __init__(self, **kwargs):
         super(OpticalFlowLoss, self).__init__(**kwargs)

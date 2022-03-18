@@ -9,10 +9,9 @@ class MemoryCallback(tf.keras.callbacks.Callback):
 
 class LearningRateReducer(tf.keras.callbacks.Callback):
   def on_epoch_end(self, epoch, logs={}):
-    old_lr = self.model.optimizer.lr.read_value()
-    if (epoch % 100):
-        new_lr = old_lr * tf.math.exp(-0.1)
-    else:
+    if (epoch > 100):
+        old_lr = self.model.optimizer.lr.read_value()
         new_lr = old_lr * 0.99
-    print("\nEpoch: {}. Reducing Learning Rate from {} to {}".format(epoch, old_lr, new_lr))
-    self.model.optimizer.lr.assign(new_lr)
+        print("\nEpoch: {}. Reducing Learning Rate from {} to {}".format(epoch, old_lr, new_lr))
+        self.model.optimizer.lr.assign(new_lr)
+    
