@@ -1,18 +1,32 @@
 
+import tensorflow as tf
+physical_devices = tf.config.list_physical_devices('GPU') 
+for device in physical_devices:
+    tf.config.experimental.set_memory_growth(device, True)
 from json import load
 import cv2
 
 import tensorflow_wavelets.Layers.DMWT as DMWT
 import tensorflow_wavelets.Layers.DTCWT as DTCWT
-
+import tensorflow_wavelets.Layers.DWT as DWT
+import tensorflow_wavelets.utils.helpers as helper
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Model
-from OpenDVCW import OpenDVC, OpticalFlowLoss
+from OpenDVCW import OpenDVC, OpticalFlowLoss, OpticalFlow
 from tensorflow.keras.layers import AveragePooling2D, Conv2D
 import OpenDVCW
+
+
+def split_wt_to_lllhhlhh(data):
+    ll = tf.split(tf.split(data, 2, axis=1)[0], 2, axis=2)[0]
+    lh = tf.split(tf.split(data, 2, axis=1)[0], 2, axis=2)[1]
+    hl = tf.split(tf.split(data, 2, axis=1)[1], 2, axis=2)[0]
+    hh = tf.split(tf.split(data, 2, axis=1)[1], 2, axis=2)[1]
+    return [ll, lh, hl, hh]
+
 
 class WaveletsOpticalFlow(tf.keras.layers.Layer):
     """ 
@@ -20,34 +34,49 @@ class WaveletsOpticalFlow(tf.keras.layers.Layer):
     def __init__(self, batch_size, width, height,  **kwargs):
         super(WaveletsOpticalFlow, self).__init__(**kwargs)
         self.optic_loss = OpticalFlowLoss()
+        self.optic_flow = OpticalFlow(batch_size, width, height)
         self.batch_size = batch_size
         self.width = width
         self.height = height
+        self.dwt_db2 = DWT.DWT("haar", concat=1)
 
     def call(self, inputs, training=None, mask=None):
         
-        im1_4 = inputs[0]
-        im2_4 = inputs[1]
-        # print("im1/2_4 avarage pooling input ", im1_4.shape, im2_4.shape)
-        im1_3 = AveragePooling2D(pool_size=2, strides=2, padding='same')(im1_4)
-        im1_2 = AveragePooling2D(pool_size=2, strides=2, padding='same')(im1_3)
-        im1_1 = AveragePooling2D(pool_size=2, strides=2, padding='same')(im1_2)
-        im1_0 = AveragePooling2D(pool_size=2, strides=2, padding='same')(im1_1)
+        im1 = inputs[0]
+        im2 = inputs[1]
 
-        im2_3 = AveragePooling2D(pool_size=2, strides=2, padding='same')(im2_4)
-        im2_2 = AveragePooling2D(pool_size=2, strides=2, padding='same')(im2_3)
-        im2_1 = AveragePooling2D(pool_size=2, strides=2, padding='same')(im2_2)
-        im2_0 = AveragePooling2D(pool_size=2, strides=2, padding='same')(im2_1)
-        
-        flow_zero = tf.zeros((self.batch_size, self.width, self.height, 2), dtype=tf.float32)
+        im1_dwt_l1 = self.dwt_db2(im1)
+        im2_dwt_l1 = self.dwt_db2(im2)
+ 
+        [im1_3, lh1_l1, hl1_l1, hh1_l1] = split_wt_to_lllhhlhh(im1_dwt_l1)
+        [im2_3, lh2_l1, hl2_l1, hh2_l1] = split_wt_to_lllhhlhh(im2_dwt_l1)
+
+        im1_dwt_l2 = self.dwt_db2(im1_3)
+        im2_dwt_l2 = self.dwt_db2(im2_3)
+
+        [im1_2, lh1_l2, hl1_l2, hh1_l2] = split_wt_to_lllhhlhh(im1_dwt_l2)
+        [im2_2, lh2_l2, hl2_l2, hh2_l2] = split_wt_to_lllhhlhh(im2_dwt_l2)
+
+        im1_dwt_l3 = self.dwt_db2(im1_2)
+        im2_dwt_l3 = self.dwt_db2(im2_2)
+
+        [im1_1, lh1_l2, hl1_l2, hh1_l2] = split_wt_to_lllhhlhh(im1_dwt_l3)
+        [im2_1, lh2_l2, hl2_l2, hh2_l2] = split_wt_to_lllhhlhh(im2_dwt_l3)
+
+        im1_dwt_l4 = self.dwt_db2(im1_1)
+        im2_dwt_l4 = self.dwt_db2(im2_1)
+
+        [im1_0, lh1_l2, hl1_l2, hh1_l2] = split_wt_to_lllhhlhh(im1_dwt_l4)
+        [im2_0, lh2_l2, hl2_l2, hh2_l2] = split_wt_to_lllhhlhh(im2_dwt_l4)
+
+        flow_zero = tf.zeros((self.batch_size, self.width//2, self.height//2, 2), dtype=tf.float32)
 
         loss_0, flow_0 = self.optic_loss([flow_zero, im1_0, im2_0])
         loss_1, flow_1 = self.optic_loss([flow_0, im1_1, im2_1])
         loss_2, flow_2 = self.optic_loss([flow_1, im1_2, im2_2])
         loss_3, flow_3 = self.optic_loss([flow_2, im1_3, im2_3])
-        loss_4, flow_4 = self.optic_loss([flow_3, im1_4, im2_4])
 
-        return loss_0, loss_1, loss_2, loss_3, loss_4, flow_0, flow_1, flow_2, flow_3, flow_4
+        return flow_3
 
 
 
@@ -100,7 +129,8 @@ if __name__ == "__main__":
     img2 = tf.expand_dims(OpenDVCW.read_png_crop(inp2, Height, Width), 0)
 
     model = OF_Test(width=Width, height=Height, batch_size=1)
-    loss_0, loss_1, loss_2, loss_3, loss_4, flow_0, flow_1, flow_2, flow_3, flow_4 = model([img1, img2])
+    loss_0  = model([img1, img2])
+    print(loss_0.shape)
 
 
 
