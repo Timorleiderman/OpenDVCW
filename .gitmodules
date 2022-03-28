@@ -1,3 +1,0 @@
-[submodule "tensorflow-wavelets"]
-	path = tensorflow-wavelets
-	url = https://github.com/Timorleiderman/tensorflow-wavelets.git
