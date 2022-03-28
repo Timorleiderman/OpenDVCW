@@ -7,7 +7,8 @@ import load
 
 
 from tensorflow.keras.layers import AveragePooling2D, Conv2D
-
+import tensorflow_wavelets.Layers.DWT as DWT
+import tensorflow_wavelets.utils.helpers as helper
 
 
 class ResBlock(tf.keras.layers.Layer):
@@ -128,6 +129,59 @@ class OpticalFlowLoss(tf.keras.layers.Layer):
         loss_layer = tf.math.reduce_mean(tf.math.squared_difference(im1_warped_fine, im2))
 
         return loss_layer, flow_fine
+
+
+class WaveletsOpticalFlow(tf.keras.layers.Layer):
+    """ 
+    """
+    def __init__(self, batch_size, width, height,  **kwargs):
+        super(WaveletsOpticalFlow, self).__init__(**kwargs)
+        self.optic_loss = OpticalFlowLoss()
+        self.optic_flow = OpticalFlow(batch_size, width, height)
+        self.batch_size = batch_size
+        self.width = width
+        self.height = height
+        self.dwt_db2 = DWT.DWT("haar", concat=1)
+
+    def call(self, inputs, training=None, mask=None):
+        
+        im1_4 = inputs[0]
+        im2_4 = inputs[1]
+
+        im1_dwt_l1 = self.dwt_db2(im1_4)
+        im2_dwt_l1 = self.dwt_db2(im2_4)
+ 
+        [im1_3, lh1_l1, hl1_l1, hh1_l1] = helper.split_wt_to_lllhhlhh(im1_dwt_l1)
+        [im2_3, lh2_l1, hl2_l1, hh2_l1] = helper.split_wt_to_lllhhlhh(im2_dwt_l1)
+
+        im1_dwt_l2 = self.dwt_db2(im1_3)
+        im2_dwt_l2 = self.dwt_db2(im2_3)
+
+        [im1_2, lh1_l2, hl1_l2, hh1_l2] = helper.split_wt_to_lllhhlhh(im1_dwt_l2)
+        [im2_2, lh2_l2, hl2_l2, hh2_l2] = helper.split_wt_to_lllhhlhh(im2_dwt_l2)
+
+        im1_dwt_l3 = self.dwt_db2(im1_2)
+        im2_dwt_l3 = self.dwt_db2(im2_2)
+
+        [im1_1, lh1_l2, hl1_l2, hh1_l2] = helper.split_wt_to_lllhhlhh(im1_dwt_l3)
+        [im2_1, lh2_l2, hl2_l2, hh2_l2] = helper.split_wt_to_lllhhlhh(im2_dwt_l3)
+
+        im1_dwt_l4 = self.dwt_db2(im1_1)
+        im2_dwt_l4 = self.dwt_db2(im2_1)
+
+        [im1_0, lh1_l2, hl1_l2, hh1_l2] = helper.split_wt_to_lllhhlhh(im1_dwt_l4)
+        [im2_0, lh2_l2, hl2_l2, hh2_l2] = helper.split_wt_to_lllhhlhh(im2_dwt_l4)
+
+        flow_zero = tf.zeros((self.batch_size, self.width//2, self.height//2, 2), dtype=tf.float32)
+
+        loss_0, flow_0 = self.optic_loss([flow_zero, im1_0, im2_0])
+        loss_1, flow_1 = self.optic_loss([flow_0, im1_1, im2_1])
+        loss_2, flow_2 = self.optic_loss([flow_1, im1_2, im2_2])
+        loss_3, flow_3 = self.optic_loss([flow_2, im1_3, im2_3])
+        loss_4, flow_4 = self.optic_loss([flow_3, im1_4, im2_4])
+
+        return flow_3
+
 
 class OpticalFlow(tf.keras.layers.Layer):
     """ 
