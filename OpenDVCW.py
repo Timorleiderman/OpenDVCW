@@ -137,7 +137,6 @@ class WaveletsOpticalFlow(tf.keras.layers.Layer):
     def __init__(self, batch_size, width, height,  **kwargs):
         super(WaveletsOpticalFlow, self).__init__(**kwargs)
         self.optic_loss = OpticalFlowLoss()
-        self.optic_flow = OpticalFlow(batch_size, width, height)
         self.batch_size = batch_size
         self.width = width
         self.height = height
@@ -180,7 +179,7 @@ class WaveletsOpticalFlow(tf.keras.layers.Layer):
         loss_3, flow_3 = self.optic_loss([flow_2, im1_3, im2_3])
         loss_4, flow_4 = self.optic_loss([flow_3, im1_4, im2_4])
 
-        return flow_3
+        return flow_4
 
 
 class OpticalFlow(tf.keras.layers.Layer):
@@ -252,7 +251,7 @@ class OpenDVC(tf.keras.Model):
         self.prior_mv = tfc.NoisyDeepFactorized(batch_shape=(num_filters,))
         self.prior_res = tfc.NoisyDeepFactorized(batch_shape=(num_filters,))
 
-        self.optical_flow = OpticalFlow(batch_size, width, height)
+        self.optical_flow = WaveletsOpticalFlow(batch_size, width, height)
         self.motion_comensation = MotionCompensation()
         self.width = width
         self.height = height
