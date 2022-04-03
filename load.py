@@ -8,6 +8,11 @@ import tensorflow as tf
 
 
 
+def load_path_n(np_folder, n):
+    paths = np.load(np_folder)   
+    path = paths[n] + '/'
+    return path
+
 def load_random_path(np_folder):
     paths = np.load(np_folder)   
     path = paths[np.random.randint(len(paths))] + '/'

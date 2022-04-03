@@ -441,6 +441,7 @@ def compress(model, input_i, input_p, output_bin, width=240, height=240):
 
 def decompress(model, input_ref, input_bin, output_decom, width=240, height=240):
     """Decompresses an image."""
+    print("decompress")
     # Load the model and determine the dtypes of tensors required to decompress.
     # model = tf.keras.models.load_model(args.model_path)
     dtypes = [t.dtype for t in model.decompress.input_signature[1:]]
