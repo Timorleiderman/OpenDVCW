@@ -133,13 +133,15 @@ class OpticalFlowLoss(tf.keras.layers.Layer):
 class WaveletsOpticalFlow(tf.keras.layers.Layer):
     """ 
     """
-    def __init__(self, batch_size, width, height,  **kwargs):
+    def __init__(self, batch_size, width, height, wavelet_name,  **kwargs):
         super(WaveletsOpticalFlow, self).__init__(**kwargs)
         self.optic_loss = OpticalFlowLoss()
         self.batch_size = batch_size
         self.width = width
         self.height = height
-        self.dwt_db2 = DWT.DWT("haar", concat=1)
+        if wavelet_name == "":
+            wavelet_name = "haar"
+        self.dwt_db2 = DWT.DWT(wavelet_name, concat=1)
 
     def call(self, inputs, training=None, mask=None):
         
@@ -240,7 +242,7 @@ class SynthesisTransform(tf.keras.Sequential):
 class OpenDVC(tf.keras.Model):
     """Main model class."""
 
-    def __init__(self, width=240, height=240, batch_size=4, num_filters=128, lmbda=512):
+    def __init__(self, width=240, height=240, batch_size=4, num_filters=128, lmbda=512, wavelet_name="haar"):
         super(OpenDVC, self).__init__()
         self.mv_analysis_transform = AnalysisTransform(num_filters, kernel_size=3, M=128, name="mv_analysis")
         self.mv_synthesis_transform = SynthesisTransform(num_filters, kernel_size=3, name="mv_synthesis")
@@ -250,7 +252,7 @@ class OpenDVC(tf.keras.Model):
         self.prior_mv = tfc.NoisyDeepFactorized(batch_shape=(num_filters,))
         self.prior_res = tfc.NoisyDeepFactorized(batch_shape=(num_filters,))
 
-        self.optical_flow = WaveletsOpticalFlow(batch_size, width, height)
+        self.optical_flow = WaveletsOpticalFlow(batch_size, width, height, wavelet_name)
         self.motion_comensation = MotionCompensation()
         self.width = width
         self.height = height
