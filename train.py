@@ -97,18 +97,18 @@ class TrainOpenDVCW(object):
     def save(self):
         self.model.save(self.save_name, save_format="tf")
 
-    def psnr(original, compressed):
-        mse = np.mean((original - compressed) ** 2)
-        if(mse == 0):  # MSE is zero means no noise is present in the signal .
-                    # Therefore PSNR have no importance.
-            return 100
-        max_pixel = 255.0
-        psnr = 20 * log10(max_pixel / sqrt(mse))
-        return psnr
-
     def check_psnr(self, p_on_test, out_decom, p_frame_out_bin):
+        def psnr(original, compressed):
+            mse = np.mean((original - compressed) ** 2)
+            if(mse == 0):  # MSE is zero means no noise is present in the signal .
+                        # Therefore PSNR have no importance.
+                return 100
+            max_pixel = 255.0
+            psnr = 20 * log10(max_pixel / sqrt(mse))
+            return psnr
+            
         original = cv2.imread(p_on_test)
         compressed = cv2.imread(out_decom)
         bin_size = os.path.getsize(p_frame_out_bin)
-        value = self.psnr(original, compressed)
+        value = psnr(original, compressed)
         print("bin size: ", bin_size , "psnr: ", value)
