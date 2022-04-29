@@ -6,7 +6,8 @@ import load
 import os
 import sys
 import fnmatch
-
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class DataVimeo90kGenerator(tf.keras.utils.Sequence):
     'Generates data for Keras'
