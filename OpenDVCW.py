@@ -239,11 +239,11 @@ class SynthesisTransform(tf.keras.Sequential):
         self.add(tfc.SignalConv2D(num_filters, (kernel_size, kernel_size), corr=False, strides_up=2, padding="same_zeros", name="layer_2", use_bias=True, activation=tfc.GDN(name="igdn_2", inverse=True)))
         self.add(tfc.SignalConv2D(M, (kernel_size, kernel_size), corr=False, strides_up=2, padding="same_zeros", name="layer_3", use_bias=True, activation=tfc.GDN(name="igdn_3", inverse=True)))
 
-class OpenDVC(tf.keras.Model):
+class OpenDVCW(tf.keras.Model):
     """Main model class."""
 
     def __init__(self, width=240, height=240, batch_size=4, num_filters=128, lmbda=512, wavelet_name="haar"):
-        super(OpenDVC, self).__init__()
+        super(OpenDVCW, self).__init__()
         self.mv_analysis_transform = AnalysisTransform(num_filters, kernel_size=3, M=128, name="mv_analysis")
         self.mv_synthesis_transform = SynthesisTransform(num_filters, kernel_size=3, name="mv_synthesis")
         self.res_analysis_transform = AnalysisTransform(num_filters, kernel_size=5, M=128, name="res_analysis")
