@@ -34,10 +34,9 @@ class TrainOpenDVCW(object):
         self.timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         self.log_dir = "logs/fit/" + self.timestamp
         self.checkponts_last_path = checkponts_prev_path
-        self.checkponts_new_path = "checkpoints_wavelets_{}_Lmbd_{}_epcs_{}_es_{}_I_QP_{}_{}x{}_CosineDecay_{}/".format(self.wavelet_name,
+        self.checkponts_new_path = "checkpoints_wavelets_{}_Lmbd_{}_epcs_{}_I_QP_{}_{}x{}_CosineDecay_{}/".format(self.wavelet_name,
                                                                                                                    self.lmbda,
                                                                                                                    self.epoch,
-                                                                                                                   self.early_stop,
                                                                                                                    self.I_QP,
                                                                                                                    self.width,
                                                                                                                    self.height,
@@ -77,19 +76,7 @@ class TrainOpenDVCW(object):
                     tf.keras.callbacks.TensorBoard(log_dir=self.log_dir, histogram_freq=0, update_freq=save_freq),            
                     ],
 				)
-    def test(self, img_path):
-        i=0
-        out_bin = "Test_com/test{}.bin".format(i)
-        out_decom = "Test_com/testdcom{}.png".format(i)
-        p_on_test = "Test_com/test_p_frame{}.png".format(i)
-        i_on_test = "Test_com/test_i_frame{}.png".format(i)
-
-        i_frame = img_path + 'im1' + '.png'
-        p_frame = img_path + 'im2' + '.png'
-        print(i_frame)
-
-        OpenDVCW.write_png(p_on_test, OpenDVCW.read_png_crop(p_frame, self.width, self.height))
-        OpenDVCW.write_png(i_on_test, OpenDVCW.read_png_crop(i_frame, self.width, self.height))
+    def test(self, i_frame, p_frame, out_bin, out_decom):
 
         OpenDVCW.compress(self.model, i_frame, p_frame, out_bin, self.width, self.height)
         OpenDVCW.decompress(self.model, i_frame, out_bin, out_decom, self.width, self.height)
@@ -97,7 +84,7 @@ class TrainOpenDVCW(object):
     def save(self):
         self.model.save(self.save_name, save_format="tf")
 
-    def check_psnr(self, p_on_test, out_decom, p_frame_out_bin):
+    def check_psnr(self, p_original, p_decompressed, p_bin_stream):
         def psnr(original, compressed):
             mse = np.mean((original - compressed) ** 2)
             if(mse == 0):  # MSE is zero means no noise is present in the signal .
@@ -107,8 +94,8 @@ class TrainOpenDVCW(object):
             psnr = 20 * log10(max_pixel / sqrt(mse))
             return psnr
             
-        original = cv2.imread(p_on_test)
-        compressed = cv2.imread(out_decom)
-        bin_size = os.path.getsize(p_frame_out_bin)
+        original = cv2.imread(p_original)
+        compressed = cv2.imread(p_decompressed)
+        bin_size = os.path.getsize(p_bin_stream)
         value = psnr(original, compressed)
         print("bin size: ", bin_size , "psnr: ", value)
