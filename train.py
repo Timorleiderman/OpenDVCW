@@ -98,4 +98,4 @@ class TrainOpenDVCW(object):
         compressed = cv2.imread(p_decompressed)
         bin_size = os.path.getsize(p_bin_stream)
         value = psnr(original, compressed)
-        print("bin size: ", bin_size , "psnr: ", value)
+        print("bin size: ", bin_size , "psnr: ", value, "bpp: ", bin_size/(240*240*3))
