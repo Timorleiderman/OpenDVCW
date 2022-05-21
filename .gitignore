@@ -37,3 +37,4 @@ Test_com/*
 *.npy
 *.npz
 tools/ClassB_PSNR.eps
+*.eps
