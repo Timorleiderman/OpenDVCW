@@ -16,6 +16,7 @@ class DataVimeo90kGenerator(tf.keras.utils.Sequence):
         self.dim = dim
         self.samples = samples
         self.np_folder = np_folder
+        self.paths = np.load(self.np_folder) 
         self.n_channels = n_channels
         self.shuffle = shuffle
         self.i_qp = I_QP
@@ -41,20 +42,17 @@ class DataVimeo90kGenerator(tf.keras.utils.Sequence):
     def __data_generation(self):
         'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
         # Initialization
-        paths = np.load(self.np_folder) 
-        path = paths[np.random.randint(len(paths))] + '/'
-
-        # data = list()
-        # data_out = list()
-        I_QP = self.i_qp
+        
+        path = self.paths[np.random.randint(len(self.paths))] + '/'
         Width = self.dim[0]
         Height = self.dim[1]
         X0 = np.empty((self.samples, *self.dim))
         X1 = np.empty((self.samples, *self.dim))
         for sample in range(self.samples):
+            # print(path)
             f = np.random.randint(7)
             if f == 0:
-                img_ref = load.read_png_crop_np(path + 'im1_bpg444_QP' + str(I_QP) + '.png', Width, Height)
+                img_ref = load.read_png_crop_np(path + 'im1_bpg444_QP' + str(self.i_qp) + '.png', Width, Height)
                 img_cur = load.read_png_crop_np(path + 'im' + str(f + 1) + '.png', Width, Height)
             else:
                 img_ref = load.read_png_crop_np(path + 'im' + str(1) + '.png', Width, Height) 
@@ -67,14 +65,8 @@ class DataVimeo90kGenerator(tf.keras.utils.Sequence):
             X0[sample,] = img_ref
             X1[sample,] = img_cur
 
-        # data.append()     
-            # data_out.append(tf.expand_dims(img_cur/255, 0))
-        # X = [tf.expand_dims(img_ref, 0), tf.expand_dims(img_cur, 0)]
-        # return np.expand_dims(img_ref, 0), np.expand_dims(img_cur, 0), None
         return X0, X1, None
-        # X = load.load_data_vimeo90k(self.np_folder, 1, self.dim[0], self.dim[1], self.dim[2], self.i_qp)
-        
-        # return X
+
 
 def generate_local_npy(pattern, path):
     result = list()

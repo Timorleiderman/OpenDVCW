@@ -242,12 +242,12 @@ class SynthesisTransform(tf.keras.Sequential):
 class OpenDVCW(tf.keras.Model):
     """Main model class."""
 
-    def __init__(self, width=240, height=240, batch_size=4, num_filters=128, lmbda=512, wavelet_name="haar"):
+    def __init__(self, width=240, height=240, channels=3, batch_size=4, num_filters=128, mv_kernel_size=3, res_kernel_size=5, M=128, lmbda=512, wavelet_name="haar"):
         super(OpenDVCW, self).__init__()
-        self.mv_analysis_transform = AnalysisTransform(num_filters, kernel_size=3, M=128, name="mv_analysis")
-        self.mv_synthesis_transform = SynthesisTransform(num_filters, kernel_size=3, name="mv_synthesis")
-        self.res_analysis_transform = AnalysisTransform(num_filters, kernel_size=5, M=128, name="res_analysis")
-        self.res_synthesis_transform = SynthesisTransform(num_filters, kernel_size=5, M=3, name="res_synthesis")
+        self.mv_analysis_transform = AnalysisTransform(num_filters, kernel_size=mv_kernel_size, M=M, name="mv_analysis")
+        self.mv_synthesis_transform = SynthesisTransform(num_filters, kernel_size=mv_kernel_size, name="mv_synthesis")
+        self.res_analysis_transform = AnalysisTransform(num_filters, kernel_size=res_kernel_size, M=M, name="res_analysis")
+        self.res_synthesis_transform = SynthesisTransform(num_filters, kernel_size=res_kernel_size, M=channels, name="res_synthesis")
 
         self.prior_mv = tfc.NoisyDeepFactorized(batch_shape=(num_filters,))
         self.prior_res = tfc.NoisyDeepFactorized(batch_shape=(num_filters,))
@@ -256,11 +256,12 @@ class OpenDVCW(tf.keras.Model):
         self.motion_comensation = MotionCompensation()
         self.width = width
         self.height = height
+        self.channels = channels
         self.batch_size = batch_size
 
         self.lmbda = lmbda
         # self.train_step_cnt = 0
-        self.build([(None, width, height, 3),(None, width, height, 3)])
+        self.build([(None, width, height, channels),(None, width, height, channels)])
 
     def call(self, x, training):
         """Computes rate and distortion losses."""
@@ -319,7 +320,7 @@ class OpenDVCW(tf.keras.Model):
     def compress(self, Y0_com, Y1_raw):
         """Compresses an image."""
         # Add batch dimension and cast to float.
-        print("in the compress")
+        # print("in the compress")
         Y0_com = tf.expand_dims(Y0_com, 0)
         Y1_raw = tf.expand_dims(Y1_raw, 0)
         Y0_com = tf.cast(Y0_com / 255, dtype=tf.float32)
@@ -360,7 +361,7 @@ class OpenDVCW(tf.keras.Model):
     ])
     def decompress(self, ref_frame, mv_str_bits, res_str_bits, x_shape, y_shape, z_shape):
         """Decompresses an image."""
-        print("in decompress")
+        # print("in decompress")
         ref_frame = tf.expand_dims(ref_frame, 0)
         Y0_com = tf.cast(ref_frame / 255, dtype=tf.float32)
 

@@ -14,7 +14,8 @@ class TrainOpenDVCW(object):
     def __init__(self, batch_size=1,
                        epoch=800,
                        steps_per_epoch=100,
-                       height=240, width=240, channels=3, num_filters=128,
+                       height=240, width=240, channels=3, 
+                       num_filters=128, mv_kernel_size=3, res_kernel_size=5, M=128,
                        lmbda=4096, lr_init=1e-4, lr_alpha=1e-8, early_stop=400,
                        i_qp=27, wavelet_name="haar", checkponts_prev_path="", np_folder="folder_cloud_test.npy") -> None:
 
@@ -25,6 +26,9 @@ class TrainOpenDVCW(object):
         self.width = width
         self.channels = channels
         self.num_filters = num_filters
+        self.mv_kernel_size = mv_kernel_size
+        self.res_kernel_size = res_kernel_size
+        self.M = M
         self.lmbda = lmbda
         self.lr_init = lr_init
         self.lr_alpha = lr_alpha
@@ -34,8 +38,9 @@ class TrainOpenDVCW(object):
         self.timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         self.log_dir = "logs/fit/" + self.timestamp
         self.checkponts_last_path = checkponts_prev_path
-        self.checkponts_new_path = "checkpoints_wavelets_{}_Lmbd_{}_epcs_{}_I_QP_{}_{}x{}_CosineDecay_{}/".format(self.wavelet_name,
+        self.checkponts_new_path = "checkpoints_wavelets_{}_Lmbd_{}_nfilt_{}_epcs_{}_I_QP_{}_{}x{}_CosineDecay_{}/".format(self.wavelet_name,
                                                                                                                    self.lmbda,
+                                                                                                                   self.num_filters,
                                                                                                                    self.epoch,
                                                                                                                    self.I_QP,
                                                                                                                    self.width,
@@ -52,7 +57,10 @@ class TrainOpenDVCW(object):
                                                   self.I_QP,
                                                   True)
     def compile(self):
-        self.model = OpenDVCW.OpenDVCW(width=self.width, height=self.height, batch_size=self.batch_size, num_filters=self.num_filters, lmbda=self.lmbda)
+        self.model = OpenDVCW.OpenDVCW(width=self.width, height=self.height,channels=self.channels,batch_size=self.batch_size,
+                                        num_filters=self.num_filters, mv_kernel_size=self.mv_kernel_size,
+                                        res_kernel_size=self.res_kernel_size, M=self.M, lmbda=self.lmbda,
+                                        wavelet_name=self.wavelet_name)
 
         lr_schedule = tf.keras.optimizers.schedules.CosineDecay(
             initial_learning_rate=self.lr_init, decay_steps=self.epoch*(self.steps_per_epoch), alpha=self.lr_alpha, name="lr_CosineDecay")
@@ -80,7 +88,8 @@ class TrainOpenDVCW(object):
 
         OpenDVCW.compress(self.model, i_frame, p_frame, out_bin, self.width, self.height)
         OpenDVCW.decompress(self.model, i_frame, out_bin, out_decom, self.width, self.height)
-
+        self.check_psnr(p_frame, out_decom, out_bin)
+        
     def save(self):
         self.model.save(self.save_name, save_format="tf")
 
