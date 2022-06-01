@@ -22,7 +22,7 @@ class DataVimeo90kGenerator(tf.keras.utils.Sequence):
         self.i_qp = I_QP
         self.norm = norm
         self.on_epoch_end()
-
+        print("init")
     def __len__(self):
         'Denotes the number of batches per epoch'
         return int(len(np.load(self.np_folder))/self.samples)
@@ -31,40 +31,33 @@ class DataVimeo90kGenerator(tf.keras.utils.Sequence):
         'Generate one batch of data'
         # Generate indexes of the batch
         # Generate data
-        return self.__data_generation()
+        return self.__data_generation(index)
 
     def on_epoch_end(self):
         'Updates indexes after each epoch'
-           
-        # path = self.paths[np.random.randint(len(self.paths))] + '/'
-        pass
+        np.random.shuffle(self.paths)  
 
-    def __data_generation(self):
+    def __data_generation(self, index):
         'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
         # Initialization
         
-        path = self.paths[np.random.randint(len(self.paths))] + '/'
         Width = self.dim[0]
         Height = self.dim[1]
         X0 = np.empty((self.samples, *self.dim))
         X1 = np.empty((self.samples, *self.dim))
-        for sample in range(self.samples):
-            # print(path)
-            f = np.random.randint(7)
-            if f == 0:
-                img_ref = load.read_png_crop_np(path + 'im1_bpg444_QP' + str(self.i_qp) + '.png', Width, Height)
-                img_cur = load.read_png_crop_np(path + 'im' + str(f + 1) + '.png', Width, Height)
-            else:
-                img_ref = load.read_png_crop_np(path + 'im' + str(1) + '.png', Width, Height) 
-                img_cur = load.read_png_crop_np(path + 'im' + str(f + 1) + '.png', Width, Height)
+
+        for idx in range(self.samples):
+            i_frm = str(self.paths[index][0])
+            p_frm = str(self.paths[index][1])
+            img_ref = load.read_png_crop_np(i_frm, Width, Height) 
+            img_cur = load.read_png_crop_np(p_frm, Width, Height)
 
             if self.norm:
                 img_ref = img_ref / 255
                 img_cur = img_cur / 255
 
-            X0[sample,] = img_ref
-            X1[sample,] = img_cur
-
+            X0[idx,] = img_ref
+            X1[idx,] = img_cur
         return X0, X1, None
 
 

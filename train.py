@@ -38,10 +38,11 @@ class TrainOpenDVCW(object):
         self.timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         self.log_dir = "logs/fit/" + self.timestamp
         self.checkponts_last_path = checkponts_prev_path
-        self.checkponts_new_path = "checkpoints_wavelets_{}_Lmbd_{}_nfilt_{}_epcs_{}_I_QP_{}_{}x{}_CosineDecay_{}/".format(self.wavelet_name,
+        self.checkponts_new_path = "checkpoints_wavelets_{}_Lmbd_{}_nfilt_{}_epcs_{}_stps_{}_I_QP_{}_{}x{}_CosineDecay_{}/".format(self.wavelet_name,
                                                                                                                    self.lmbda,
                                                                                                                    self.num_filters,
                                                                                                                    self.epoch,
+                                                                                                                   self.steps_per_epoch,
                                                                                                                    self.I_QP,
                                                                                                                    self.width,
                                                                                                                    self.height,
