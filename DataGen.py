@@ -22,7 +22,6 @@ class DataVimeo90kGenerator(tf.keras.utils.Sequence):
         self.i_qp = I_QP
         self.norm = norm
         self.on_epoch_end()
-        print("init")
     def __len__(self):
         'Denotes the number of batches per epoch'
         return int(len(np.load(self.np_folder))/self.samples)

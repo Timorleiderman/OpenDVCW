@@ -17,7 +17,8 @@ class TrainOpenDVCW(object):
                        height=240, width=240, channels=3, 
                        num_filters=128, mv_kernel_size=3, res_kernel_size=5, M=128,
                        lmbda=4096, lr_init=1e-4, lr_alpha=1e-8, early_stop=400,
-                       i_qp=27, wavelet_name="haar", checkponts_prev_path="", np_folder="folder_cloud_test.npy") -> None:
+                       i_qp=27, wavelet_name="haar", checkponts_prev_path="", checkpoints_target_path = "",
+                       np_folder="folder_cloud_test.npy") -> None:
 
         self.batch_size = batch_size
         self.epoch = epoch
@@ -38,7 +39,7 @@ class TrainOpenDVCW(object):
         self.timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         self.log_dir = "logs/fit/" + self.timestamp
         self.checkponts_last_path = checkponts_prev_path
-        self.checkponts_new_path = "checkpoints_wavelets_{}_Lmbd_{}_nfilt_{}_epcs_{}_stps_{}_I_QP_{}_{}x{}_CosineDecay_{}/".format(self.wavelet_name,
+        self.checkponts_new_path = os.path.join(checkpoints_target_path,"checkpoints_wavelets_{}_Lmbd_{}_nfilt_{}_epcs_{}_stps_{}_I_QP_{}_{}x{}_CosineDecay_{}/".format(self.wavelet_name,
                                                                                                                    self.lmbda,
                                                                                                                    self.num_filters,
                                                                                                                    self.epoch,
@@ -46,7 +47,7 @@ class TrainOpenDVCW(object):
                                                                                                                    self.I_QP,
                                                                                                                    self.width,
                                                                                                                    self.height,
-                                                                                                                   self.timestamp)
+                                                                                                                   self.timestamp))
         self.save_name = "model_save_" + self.checkponts_new_path
         self.np_folder = np_folder
         # print("* [Loading dataset]...")
