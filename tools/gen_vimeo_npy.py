@@ -68,21 +68,27 @@ def gen_i_p_seq(npy, iqp=27, num_of_files_in_dir=7):
         
 if __name__ == "__main__":
     # # generate npy file containing all the paths
-    # folder = find('im1.png', '/mnt/WindowsDev/DataSets/vimeo_septuplet/sequences/')
-    # for qp in [22, 30, 35, 40]:
-    #     npy_encode_decode(folder, qp)
-    # np.save('folder_cloud_test.npy', folder)
+    folder = find('im1.png', '/mnt/WindowsDev/DataSets/vimeo_septuplet/sequences/')
+    for qp in [32, 37, 42]:
+        npy_encode_decode(folder, qp)
+    np.save('folder_cloud_test.npy', folder)
     npy = np.load("folder_cloud_test.npy")
     
-    train_set_iqp22 = gen_i_p_seq(npy, 22, 7)
-    np.save("train_set_iqp22.npy", train_set_iqp22)
-    train_set_iqp27 = gen_i_p_seq(npy, 27, 7)
-    np.save("train_set_iqp27.npy",train_set_iqp27)
-    train_set_iqp30 = gen_i_p_seq(npy, 30, 7)
-    np.save("train_set_iqp30.npy", train_set_iqp30)
-    train_set_iqp35 = gen_i_p_seq(npy, 35, 7)
-    np.save("train_set_iqp35.npy", train_set_iqp35)
-    train_set_iqp40 = gen_i_p_seq(npy, 40, 7)
-    np.save("train_set_iqp40.npy",train_set_iqp40)
+    # train_set_iqp22 = gen_i_p_seq(npy, 22, 7)
+    # np.save("train_set_iqp22.npy", train_set_iqp22)
+    # train_set_iqp27 = gen_i_p_seq(npy, 27, 7)
+    # np.save("train_set_iqp27.npy",train_set_iqp27)
+    # train_set_iqp30 = gen_i_p_seq(npy, 30, 7)
+    # np.save("train_set_iqp30.npy", train_set_iqp30)
+    train_set_iqp32 = gen_i_p_seq(npy, 32, 7)
+    np.save("train_set_iqp32.npy", train_set_iqp32)
+    # train_set_iqp35 = gen_i_p_seq(npy, 35, 7)
+    # np.save("train_set_iqp35.npy", train_set_iqp35)
+    train_set_iqp37 = gen_i_p_seq(npy, 37, 7)
+    np.save("train_set_iqp37.npy", train_set_iqp37)
+    # train_set_iqp40 = gen_i_p_seq(npy, 40, 7)
+    # np.save("train_set_iqp40.npy",train_set_iqp40)
+    train_set_iqp42 = gen_i_p_seq(npy, 42, 7)
+    np.save("train_set_iqp42.npy", train_set_iqp42)
     
 
