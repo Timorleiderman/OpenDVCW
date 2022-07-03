@@ -172,7 +172,8 @@ class WaveletsOpticalFlow(tf.keras.layers.Layer):
         [im1_0, lh1_l2, hl1_l2, hh1_l2] = helper.split_wt_to_lllhhlhh(im1_dwt_l4)
         [im2_0, lh2_l2, hl2_l2, hh2_l2] = helper.split_wt_to_lllhhlhh(im2_dwt_l4)
 
-        flow_zero = tf.zeros((self.batch_size, self.width//2, self.height//2, 2), dtype=tf.float32)
+        flow_zero = tf.zeros_like(im2_0[:, :, :, 0:2], dtype=tf.float32)
+        # flow_zero = tf.zeros((self.batch_size, self.width//2, self.height//2, 2), dtype=tf.float32)
 
         loss_0, flow_0 = self.optic_loss([flow_zero, im1_0, im2_0])
         loss_1, flow_1 = self.optic_loss([flow_0, im1_1, im2_1])
@@ -314,8 +315,8 @@ class OpenDVCW(tf.keras.Model):
         return {m.name: m.result() for m in [self.loss, self.bpp, self.mse]}
 
     @tf.function(input_signature=[
-        tf.TensorSpec(shape=(240, 240, 3), dtype=tf.uint8),
-        tf.TensorSpec(shape=(240, 240, 3), dtype=tf.uint8),
+        tf.TensorSpec(shape=(None, None, 3), dtype=tf.uint8),
+        tf.TensorSpec(shape=(None, None, 3), dtype=tf.uint8),
     ])
     def compress(self, Y0_com, Y1_raw):
         """Compresses an image."""
@@ -352,7 +353,7 @@ class OpenDVCW(tf.keras.Model):
         return mv_str_bits, res_str_bits, x_shape, y_shape, z_shape
 
     @tf.function(input_signature=[
-        tf.TensorSpec(shape=(240, 240, 3), dtype=tf.uint8),
+        tf.TensorSpec(shape=(None, None, 3), dtype=tf.uint8),
         tf.TensorSpec(shape=(1,), dtype=tf.string),
         tf.TensorSpec(shape=(1,), dtype=tf.string),
         tf.TensorSpec(shape=(2,), dtype=tf.int32),
@@ -429,7 +430,7 @@ def write_png(filename, image):
 
 def compress(model, input_i, input_p, output_bin, width=240, height=240):
     # model = tf.keras.models.load_model(args.model_path)
-    print("compress")
+    # print("compress")
     Y0_com = read_png_crop(input_i, width, height)
     Y1_raw = read_png_crop(input_p, width, height) 
 
@@ -443,7 +444,7 @@ def compress(model, input_i, input_p, output_bin, width=240, height=240):
 
 def decompress(model, input_ref, input_bin, output_decom, width=240, height=240):
     """Decompresses an image."""
-    print("decompress")
+    # print("decompress")
     # Load the model and determine the dtypes of tensors required to decompress.
     # model = tf.keras.models.load_model(args.model_path)
     dtypes = [t.dtype for t in model.decompress.input_signature[1:]]

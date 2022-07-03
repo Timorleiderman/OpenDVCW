@@ -1,5 +1,8 @@
 FROM tensorflow/tensorflow:latest-gpu
 
+RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub 88
+RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu2004/x86_64/7fa2af80.pub 20
+RUN apt-get update
 
 RUN apt-get update
 RUN apt-get install ffmpeg libsm6 libxext6 git -y
@@ -29,9 +32,6 @@ WORKDIR /workspaces
 RUN git clone https://github.com/Timorleiderman/tensorflow-wavelets.git
 
 
-RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub 88
-RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu2004/x86_64/7fa2af80.pub 20
-RUN apt-get update
 RUN apt-get install wget libsdl-image1.2-dev libsdl1.2-dev libjpeg8-dev yasm cmake -y 
 RUN wget http://bellard.org/bpg/libbpg-0.9.7.tar.gz
 RUN tar xzf libbpg-0.9.7.tar.gz
