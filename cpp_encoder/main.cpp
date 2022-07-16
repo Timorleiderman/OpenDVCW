@@ -116,6 +116,10 @@ int main(int argc, char *argv[])
 
     const char *codec_name;
     const char *bit_rate_arg;
+    const char *input_path_arg;
+    const char *prefix;
+    const char *suffix;
+    const char *workdir;
 
     config_t config;       
 
@@ -127,12 +131,18 @@ int main(int argc, char *argv[])
     AVPacket *pkt;
 
     
-    if (argc <= 2) {
-        fprintf(stderr, "Usage: %s <codec name> <bit rate>\n", argv[0]);
+    if (argc <= 6) {
+        fprintf(stderr, "Usage: %s <codec name> <bit rate> <input sequence path> <prefix> <suffix> <work dir>\n", argv[0]);
         exit(0);
     }
     codec_name = argv[1];
     bit_rate_arg = argv[2];
+    input_path_arg = argv[3];
+    prefix = argv[4];
+    suffix = argv[5];
+    workdir = argv[6];
+
+
     
     /* find the mpeg1video encoder */
     codec = avcodec_find_encoder_by_name(codec_name);
@@ -182,7 +192,7 @@ int main(int argc, char *argv[])
     //     fprintf(stderr, "Could not open %s\n", filename);
     //     exit(1);
     // }
-    config.outfile_prefix = "frame";
+    config.outfile_prefix = workdir;
     /* open it */
     ret = avcodec_open2(c, codec, NULL);
     if (ret < 0) {
@@ -210,8 +220,11 @@ int main(int argc, char *argv[])
         
         /* prepare a dummy image */
         /* Y */
-        std::string main_path ="/mnt/WindowsDev/DataSets/Beauty_1920x1080_120fps_420_8bit_YUV_RAW/im";
-        std::string img_path = main_path + std::to_string(i+1) + ".png";
+        // std::string main_path = "/mnt/WindowsDev/DataSets/Beauty_1920x1080_120fps_420_8bit_YUV_RAW/im";
+        std::string main_path = input_path_arg;
+        std::string prefix_str = prefix;
+        std::string suffix_str = suffix;
+        std::string img_path = main_path + prefix_str + std::to_string(i+1) + suffix_str;
         
         cv::Mat img = cv::imread(img_path);
         if (img.empty()) { 
