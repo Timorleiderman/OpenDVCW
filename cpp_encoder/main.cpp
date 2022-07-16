@@ -50,6 +50,7 @@ static void encode_splited(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pk
 
         std::string filename;
         filename = config->outfile_prefix + std::to_string(cnt) + config->extension;
+        std::cout << "Writing to " << filename << std::endl;
         FILE *f;
         f = fopen(filename.c_str(), "wb");
         if (!f) {
@@ -225,7 +226,7 @@ int main(int argc, char *argv[])
         std::string prefix_str = prefix;
         std::string suffix_str = suffix;
         std::string img_path = main_path + prefix_str + std::to_string(i+1) + suffix_str;
-        
+        std::cout << "Reading ... " << img_path << std::endl;
         cv::Mat img = cv::imread(img_path);
         if (img.empty()) { 
             std::cerr << "Could not open file " << img_path << std::endl; return (1);
