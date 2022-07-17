@@ -33,9 +33,17 @@ class VideoCaptureYUV:
         return ret, resized
 
 if __name__ == "__main__":
-    #filename = "data/20171214180916RGB.yuv"
-    filename = "P:\DataSets\Beauty_1920x1080_120fps_420_8bit_YUV_RAW\Beauty_1920x1080_120fps_420_8bit_YUV.yuv"
-    output_path = "P:\DataSets\Beauty_1920x1080_120fps_420_8bit_YUV_RAW"
+    # filename = "P:\DataSets\Beauty_1920x1080_120fps_420_8bit_YUV_RAW\Beauty_1920x1080_120fps_420_8bit_YUV.yuv"
+    # output_path = "P:\DataSets\Beauty_1920x1080_120fps_420_8bit_YUV_RAW"
+
+    # filename = "/mnt/WindowsDev/DataSets/Bosphorus_1920x1080_120fps_420_8bit_YUV_raw/Bosphorus_1920x1080_120fps_420_8bit_YUV.yuv"
+    # output_path = "/mnt/WindowsDev/DataSets/Bosphorus_1920x1080_120fps_420_8bit_YUV_raw"
+
+    # filename = "/mnt/WindowsDev/DataSets/ShakeNDry_1920x1080_120fps_420_8bit_YUV_RAW/ShakeNDry_1920x1080_120fps_420_8bit_YUV.yuv"
+    # output_path = "/mnt/WindowsDev/DataSets/ShakeNDry_1920x1080_120fps_420_8bit_YUV_RAW"
+
+    filename = "/mnt/WindowsDev/DataSets/HoneyBee_1920x1080_120fps_420_8bit_YUV_RAW/HoneyBee_1920x1080_120fps_420_8bit_YUV.yuv"
+    output_path = "/mnt/WindowsDev/DataSets/HoneyBee_1920x1080_120fps_420_8bit_YUV_RAW"
     size = (1080, 1920)
     cap = VideoCaptureYUV(filename, size)
 
@@ -45,7 +53,7 @@ if __name__ == "__main__":
         if ret:
             cv2.imwrite(os.path.join(output_path, "im" + str(cnt) + ".png"), frame)
             cnt += 1
-            cv2.imshow("frame", frame)
-            cv2.waitKey(1)
+            # cv2.imshow("frame", frame)
+            # cv2.waitKey(1)
         else:
             break
