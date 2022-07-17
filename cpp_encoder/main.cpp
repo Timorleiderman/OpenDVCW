@@ -6,6 +6,7 @@
  * @example encode_video.c
  */
 #include <iostream>
+#include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,6 +23,7 @@ extern "C" {
 typedef struct config_t {
     std::string outfile_prefix;
     std::string extension;
+    std::string joined_file;
 }config_t;
 
 static void encode_splited(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt,
@@ -49,7 +51,7 @@ static void encode_splited(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pk
         std::cout << "Write packet " << pkt->pts << " Size: " << pkt->size << std::endl;;
 
         std::string filename;
-        filename = config->outfile_prefix + std::to_string(cnt) + config->extension;
+        filename = config->outfile_prefix + "/" + std::to_string(cnt) + config->extension;
         std::cout << "Writing to " << filename << std::endl;
         FILE *f;
         f = fopen(filename.c_str(), "wb");
@@ -110,7 +112,14 @@ static void encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt,
         av_packet_unref(pkt);
     }
 }
-
+  // Convert string values into type T results.
+  // Returns false in case the conversion fails.
+  template <typename T>
+  bool getValueFromString( const std::string & value, T & result )
+  {
+    std::istringstream iss( value );
+    return !( iss >> result ).fail();
+  }
 
 int main(int argc, char *argv[])
 {
@@ -121,19 +130,21 @@ int main(int argc, char *argv[])
     const char *prefix;
     const char *suffix;
     const char *workdir;
+    const char *number_of_frames;
 
     config_t config;       
 
     const AVCodec *codec;
     AVCodecContext *c= NULL;
+    AVCodecContext *c1= NULL;
     int i, ret, x, y;
     FILE *f;
     AVFrame *frame;
     AVPacket *pkt;
 
     
-    if (argc <= 6) {
-        fprintf(stderr, "Usage: %s <codec name> <bit rate> <input sequence path> <prefix> <suffix> <work dir>\n", argv[0]);
+    if (argc <= 7) {
+        fprintf(stderr, "Usage: %s <codec name> <bit rate> <input sequence path> <prefix> <suffix> <work dir> <number_of_frames>\n", argv[0]);
         exit(0);
     }
     codec_name = argv[1];
@@ -142,7 +153,14 @@ int main(int argc, char *argv[])
     prefix = argv[4];
     suffix = argv[5];
     workdir = argv[6];
+    number_of_frames = argv[7];
 
+    bool         success;
+    unsigned int n_frames;
+    // convert from const char * into unsigned int
+    success = getValueFromString( number_of_frames, n_frames );
+    std::cout << "number of frames: " << number_of_frames << std::endl;
+    
 
     
     /* find the mpeg1video encoder */
@@ -156,16 +174,30 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Could not allocate video codec context\n");
         exit(1);
     }
+    c1 = avcodec_alloc_context3(codec);
+    if (!c1) {
+        fprintf(stderr, "Could not allocate video codec context\n");
+        exit(1);
+    }
+
     pkt = av_packet_alloc();
     if (!pkt)
         exit(1);
     /* put sample parameters */
     c->bit_rate = atoi(bit_rate_arg);
+    c1->bit_rate = atoi(bit_rate_arg);
+
     /* resolution must be a multiple of two */
     c->width = 240;
     c->height = 240;
+
+    c1->width = 240;
+    c1->height = 240;
+
     /* frames per second */
     c->time_base = (AVRational){1, 30};
+    c1->time_base = (AVRational){1, 30};
+
     //c->framerate = (AVRational){2, 1};
     
     /* emit one intra frame every ten frames
@@ -177,25 +209,47 @@ int main(int argc, char *argv[])
     //c->gop_size = 10;
     //c->max_b_frames = 1;
     c->pix_fmt = AV_PIX_FMT_YUV444P;
+    c1->pix_fmt = AV_PIX_FMT_YUV444P;
+
+    std::string main_path = input_path_arg;
+    std::string workdir_str = workdir;
+    std::string prefix_str = prefix;
+    std::string suffix_str = suffix;
 
     if (codec->id == AV_CODEC_ID_H264){
         
         config.extension = ".h264"; 
+        config.joined_file = workdir_str + "/output_joined.h264";
     }
     else if (codec->id == AV_CODEC_ID_H265)
+    {
         config.extension = ".h265"; 
+        config.joined_file = workdir_str + "/output_joined.h265";
+    }
     else
+    {
         config.extension = ".mp4"; 
+        config.joined_file = workdir_str + "/output_joined.mp4";
+
+    }
     
     av_opt_set(c->priv_data, "preset", "veryfast", 0);
-    // f = fopen(filename, "wb");
-    // if (!f) {
-    //     fprintf(stderr, "Could not open %s\n", filename);
-    //     exit(1);
-    // }
+
+    std::cout << "Opening ... " << config.joined_file << std::endl;
+    f = fopen(config.joined_file.c_str(), "wb");
+    if (!f) {
+        fprintf(stderr, "Could not open %s\n", config.joined_file.c_str());
+        exit(1);
+    }
     config.outfile_prefix = workdir;
     /* open it */
     ret = avcodec_open2(c, codec, NULL);
+    if (ret < 0) {
+            std::cerr << "Could not open codec "; // << av_err2str(ret) << std::endl;
+        exit(1);
+    }
+
+    ret = avcodec_open2(c1, codec, NULL);
     if (ret < 0) {
             std::cerr << "Could not open codec "; // << av_err2str(ret) << std::endl;
         exit(1);
@@ -215,17 +269,15 @@ int main(int argc, char *argv[])
         exit(1);
     }
     /* encode 1 second of video */
-    for (i = 0; i < 2; i++) {
+    for (i = 0; i < n_frames; i++) {
         fflush(stdout);
         
         
         /* prepare a dummy image */
         /* Y */
         // std::string main_path = "/mnt/WindowsDev/DataSets/Beauty_1920x1080_120fps_420_8bit_YUV_RAW/im";
-        std::string main_path = input_path_arg;
-        std::string prefix_str = prefix;
-        std::string suffix_str = suffix;
-        std::string img_path = main_path + prefix_str + std::to_string(i+1) + suffix_str;
+        
+        std::string img_path = main_path  + prefix_str + std::to_string(i+1) + suffix_str;
         std::cout << "Reading ... " << img_path << std::endl;
         cv::Mat img = cv::imread(img_path);
         if (img.empty()) { 
@@ -263,17 +315,21 @@ int main(int argc, char *argv[])
         /* encode the image */
         
         encode_splited(c, frame, pkt, &config);
+        encode(c1, frame, pkt, f);
         
         
     }
     
     /* flush the encoder */
    encode_splited(c, NULL, pkt, &config);
+   encode(c1, NULL, pkt, f);
     /* add sequence end code to have a real MPEG file */
     // uint8_t endcode[] = { 0, 0, 1, 0xb7 };
     // fwrite(endcode, 1, sizeof(endcode), f);
-    // fclose(f);
+    fclose(f);
     avcodec_free_context(&c);
+    avcodec_free_context(&c1);
+
     av_frame_free(&frame);
     av_packet_free(&pkt);
     return 0;
