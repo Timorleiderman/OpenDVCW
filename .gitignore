@@ -40,3 +40,5 @@ tools/ClassB_PSNR.eps
 *.eps
 *.tempstate9355965572535143279
 cpp_encoder/build/*
+*.h265
+*.h264
