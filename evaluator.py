@@ -27,17 +27,23 @@ class Evaluator(object):
         self.channels = channels
         # input video sequence frames
         self.input_seq_path = input_seq_path
+        # input data suffix and prefix 
+        self.suffix = suffix
+        self.prefix = prefix
+        # tf encoder wordir
         self.workdir = workdir
         # tensorflow models paths
         self.model_list = model_list
+
+        # number of frames to compress
         self.num_of_p_frames = num_of_p_frames
 
-        self.suffix = suffix
-        self.prefix = prefix
-
+        # tf encoder suffix output
         self.bin_suffix = bin_suffix
+        # tf model decompess prefix (it will be saved as png)
         self.decom_prefix = decom_prefix
 
+        # the cpp encoder for x264 x265 evaluation
         self.tave_path = tave_path
         self.h264_workdir = h264_workdir
         self.h264_bitrate_list = h264_bitrate_list
@@ -45,12 +51,15 @@ class Evaluator(object):
         self.h265_workdir = h265_workdir
         self.h265_bitrate_list = h265_bitrate_list
 
+        # create paths if not exists
         path_exists(h264_workdir)
         path_exists(h265_workdir)
         path_exists(workdir)
 
         self.encoded_h264 = r"/output_joined.h264"
         self.encoded_h265 = r"/output_joined.h265"
+
+        # results
         self.res = dict()
         self.h264_res = dict()
         self.h265_res = dict()
@@ -149,9 +158,6 @@ class Evaluator(object):
                 avg_psnr += self.res[model_name][iter]["psnr"]
             our_bpp.append(avg_bpp/self.num_of_p_frames)
             our_psnr.append(avg_psnr/self.num_of_p_frames)
-
-            
-        
 
         # H.264 
         h264_bpp = []
