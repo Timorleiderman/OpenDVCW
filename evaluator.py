@@ -159,7 +159,7 @@ class Evaluator(object):
         for bit_rate in self.h264_bitrate_list:
             avg_bpp = 0
             avg_psnr = 0
-            for iter in range(self.num_of_p_frames):
+            for iter in range(self.num_of_p_frames-1):
                 avg_bpp += self.h264_res[bit_rate][iter]["BPP"]
                 avg_psnr += self.h264_res[bit_rate][iter]["psnr"]
             h264_bpp.append(avg_bpp/self.num_of_p_frames)
@@ -170,7 +170,7 @@ class Evaluator(object):
         for bit_rate in self.h265_bitrate_list:
             avg_bpp = 0
             avg_psnr = 0
-            for iter in range(self.num_of_p_frames):
+            for iter in range(self.num_of_p_frames-1):
                 avg_bpp += self.h265_res[bit_rate][iter]["BPP"]
                 avg_psnr += self.h265_res[bit_rate][iter]["psnr"]
             h265_bpp.append(avg_bpp/self.num_of_p_frames)
