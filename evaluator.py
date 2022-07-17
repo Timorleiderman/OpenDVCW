@@ -151,7 +151,7 @@ class Evaluator(object):
             our_psnr.append(avg_psnr/self.num_of_p_frames)
 
             
-        ours, = plt.plot(our_bpp, our_psnr, "k-o", linewidth=LineWidth, label=proposed_labhel)
+        
 
         # H.264 
         h264_bpp = []
@@ -162,8 +162,8 @@ class Evaluator(object):
             for iter in range(self.num_of_p_frames-1):
                 avg_bpp += self.h264_res[bit_rate][iter]["BPP"]
                 avg_psnr += self.h264_res[bit_rate][iter]["psnr"]
-            h264_bpp.append(avg_bpp/self.num_of_p_frames)
-            h264_psnr.append(avg_bpp/self.num_of_p_frames)
+            h264_bpp.append(avg_bpp/(self.num_of_p_frames-1))
+            h264_psnr.append(avg_psnr/(self.num_of_p_frames-1))
         
         h265_bpp = []
         h265_psnr = []
@@ -173,9 +173,10 @@ class Evaluator(object):
             for iter in range(self.num_of_p_frames-1):
                 avg_bpp += self.h265_res[bit_rate][iter]["BPP"]
                 avg_psnr += self.h265_res[bit_rate][iter]["psnr"]
-            h265_bpp.append(avg_bpp/self.num_of_p_frames)
-            h265_psnr.append(avg_bpp/self.num_of_p_frames)
+            h265_bpp.append(avg_bpp/(self.num_of_p_frames-1))
+            h265_psnr.append(avg_psnr/(self.num_of_p_frames-1))
 
+        ours, = plt.plot(our_bpp, our_psnr, "k-o", linewidth=LineWidth, label=proposed_labhel)
         h264, = plt.plot(h264_bpp, h264_psnr, "m--s", linewidth=LineWidth, label='H.264')
         h265, = plt.plot(h265_bpp, h265_psnr, "r--v", linewidth=LineWidth, label='H.265')
 
