@@ -6,7 +6,7 @@ from math import log10, sqrt
 import OpenDVCW
 import subprocess
 import matplotlib
-
+import pandas as pd
 import matplotlib.pyplot as plt
 
 def path_exists(path):
@@ -19,7 +19,8 @@ class Evaluator(object):
                 prefix="im", suffix=".png", bin_suffix=".bin", decom_prefix="decom",
                 tave_path="/workspaces/OpenDVCW/cpp_encoder/build/tave",
                 h264_workdir="", h264_bitrate_list=[50e3, 100e3, 200e3, 400e3, 1e5],
-                h265_workdir="", h265_bitrate_list=[50e3, 100e3, 200e3, 400e3, 1e5]) -> None:
+                h265_workdir="", h265_bitrate_list=[50e3, 100e3, 200e3, 400e3, 1e5],
+                proposed_label="Proposed-Haar") -> None:
         # bach size
         self.bs = bs
         self.height = height
@@ -59,10 +60,13 @@ class Evaluator(object):
         self.encoded_h264 = r"/output_joined.h264"
         self.encoded_h265 = r"/output_joined.h265"
 
+        self.proposed_label = proposed_label
         # results
         self.res = dict()
         self.h264_res = dict()
         self.h265_res = dict()
+        self.i_frame = os.path.join(self.input_seq_path, self.prefix + str(0) + self.suffix)
+
 
     def PSNR(self, original, compressed):
         mse = np.mean((original - compressed) ** 2)
@@ -86,7 +90,6 @@ class Evaluator(object):
     
     def eval(self):
         print("Evaluation Started ...")
-        i_frame = os.path.join(self.input_seq_path, self.prefix + str(0) + self.suffix)
         for model_name in self.model_list:
             print("working on model", model_name)
             iter_res = []
@@ -96,7 +99,7 @@ class Evaluator(object):
                 p_frame = os.path.join(self.input_seq_path, self.prefix + str(idx) + self.suffix)
                 p_frame_out_bin = os.path.join(self.workdir, self.prefix + str(idx) + self.bin_suffix)
                 p_out_decom = os.path.join(self.workdir, self.decom_prefix + str(idx) + self.suffix)
-                iter_res.append(self.test_tf_model(model, i_frame, p_frame, p_out_decom, p_frame_out_bin))   
+                iter_res.append(self.test_tf_model(model, self.i_frame, p_frame, p_out_decom, p_frame_out_bin))   
 
             self.res[model_name] = iter_res   
 
@@ -142,7 +145,7 @@ class Evaluator(object):
 
         self.h265_res[bit_rate] = res
 
-    def plot_graph(self, fig_name="", proposed_labhel="Proposed-Haar"):
+    def plot_graph(self, fig_name="", title=''):
         font = {'family': 'Arial', 'weight': 'normal', 'size': 14}
         matplotlib.rc('font', **font)
         LineWidth = 3
@@ -182,14 +185,23 @@ class Evaluator(object):
             h265_bpp.append(avg_bpp/(self.num_of_p_frames-1))
             h265_psnr.append(avg_psnr/(self.num_of_p_frames-1))
 
-        ours, = plt.plot(our_bpp, our_psnr, "k-o", linewidth=LineWidth, label=proposed_labhel)
+        ours, = plt.plot(our_bpp, our_psnr, "k-o", linewidth=LineWidth, label=self.proposed_label)
         h264, = plt.plot(h264_bpp, h264_psnr, "m--s", linewidth=LineWidth, label='H.264')
         h265, = plt.plot(h265_bpp, h265_psnr, "r--v", linewidth=LineWidth, label='H.265')
-
         plt.legend(handles=[h264, h265, ours], loc=4)
         plt.grid()
         plt.xlabel('BPP')
         plt.ylabel('PSNR(dB)')
-        plt.title('')
+        plt.title(title)
         if fig_name != "":
             plt.savefig(fig_name, format='eps', dpi=600, bbox_inches='tight')   
+        plt.close()
+    def save_csv(self, n=0):
+        csv = {'PSNR': ['H.264','H.265', self.proposed_label]}
+        for f in range(self.num_of_p_frames-1):
+            csv.update( {"P frame " + str(f+1) : [self.h264_res[self.h264_bitrate_list[n]][f]['psnr'],
+                            self.h265_res[self.h265_bitrate_list[n]][f]['psnr'],
+                            self.res[self.model_list[n]][f]['psnr'] ]})
+
+        df = pd.DataFrame(csv)
+        df.to_csv("test.csv", sep=',', encoding='utf-8', header=True,  index=False)
