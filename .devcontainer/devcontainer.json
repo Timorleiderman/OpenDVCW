@@ -18,7 +18,8 @@
 		"yzhang.markdown-all-in-one",
 		"ms-python.python",
 		"ms-toolsai.jupyter",
-		"knisterpeter.vscode-github"
+		"knisterpeter.vscode-github",
+		"mkvoya.eps-preview"
 	],
 
 	"runArgs": ["--privileged=true", "-v", "/mnt/:/mnt/","--gpus", "all", "--user", "1000:1000", "-p", "6006:6006"]
