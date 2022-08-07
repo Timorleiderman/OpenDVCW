@@ -97,6 +97,7 @@ RUN mkdir -p build && cd build && cmake \
 
 RUN apt install libavcodec-dev libavformat-dev libavfilter-dev libavdevice-dev libx265-dev libx264-dev libnuma-dev  -y
 
+RUN pip3 install pandas
 
 RUN useradd -ms /bin/bash ubu-admin
 
