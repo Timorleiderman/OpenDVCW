@@ -1,5 +1,6 @@
 import os
 import cv2
+import csv
 import numpy as np
 import tensorflow as tf
 from math import log10, sqrt
@@ -176,6 +177,8 @@ class Evaluator(object):
             print("H265 Evaluation ...")
             for bit_rate in self.h265_bitrate_list:
                 self.h265_test(bit_rate)
+        self.bpp_psnr()
+
 
     def h264_test(self, bit_rate):
         command = [self.tave_path, "libx264", str(bit_rate), self.input_seq_path,
@@ -213,23 +216,19 @@ class Evaluator(object):
 
         self.h265_res[bit_rate] = res
 
-    def plot_graph(self, fig_name="", title=''):
-        font = {'family': 'Arial', 'weight': 'normal', 'size': 14}
-        matplotlib.rc('font', **font)
-        line_width = 3
-
+    def bpp_psnr(self):
+        
         self.plt_our_bpp = []
         self.plt_our_psnr = []
-        
+
         for model_name in self.model_list:
-            avg_bpp = 0
-            avg_psnr = 0
-            for iter in range(self.num_of_p_frames):
-                avg_bpp += self.res[model_name][iter]["BPP"]
-                avg_psnr += self.res[model_name][iter]["psnr"]
-            self.plt_our_bpp.append(avg_bpp/self.num_of_p_frames)
-            self.plt_our_psnr.append(avg_psnr/self.num_of_p_frames)
-        ours, = plt.plot(self.plt_our_bpp, self.plt_our_psnr, "k-o", linewidth=line_width, label=self.proposed_label)
+                    avg_bpp = 0
+                    avg_psnr = 0
+                    for iter in range(self.num_of_p_frames):
+                        avg_bpp += self.res[model_name][iter]["BPP"]
+                        avg_psnr += self.res[model_name][iter]["psnr"]
+                    self.plt_our_bpp.append(avg_bpp/self.num_of_p_frames)
+                    self.plt_our_psnr.append(avg_psnr/self.num_of_p_frames)
 
         if self.tave_run:
             # H.264 
@@ -254,6 +253,14 @@ class Evaluator(object):
                     avg_psnr += self.h265_res[bit_rate][iter]["psnr"]
                 self.plt_h265_bpp.append(avg_bpp/(self.num_of_p_frames-1))
                 self.plt_h265_psnr.append(avg_psnr/(self.num_of_p_frames-1))
+
+    def plot_graph(self, fig_name="", title=''):
+        font = {'family': 'Arial', 'weight': 'normal', 'size': 14}
+        matplotlib.rc('font', **font)
+        line_width = 3
+        
+        ours, = plt.plot(self.plt_our_bpp, self.plt_our_psnr, "k-o", linewidth=line_width, label=self.proposed_label)
+        if self.tave_run:
             h264, = plt.plot(self.plt_h264_bpp, self.plt_h264_psnr, "m--s", linewidth=line_width, label='H.264')
             h265, = plt.plot(self.plt_h265_bpp, self.plt_h265_psnr, "r--v", linewidth=line_width, label='H.265')
             
@@ -270,12 +277,12 @@ class Evaluator(object):
             plt.savefig(fig_name, format='eps', dpi=600, bbox_inches='tight')   
         plt.close()
 
-    def save_csv(self, n=0):
-        csv = {'PSNR': ['H.264','H.265', self.proposed_label]}
-        for f in range(self.num_of_p_frames-1):
-            csv.update( {"P frame " + str(f+1) : [self.h264_res[self.h264_bitrate_list[n]][f]['psnr'],
-                            self.h265_res[self.h265_bitrate_list[n]][f]['psnr'],
-                            self.res[self.model_list[n]][f]['psnr'] ]})
+    def save_csv(self, fig_name="test.csv"):
 
-        df = pd.DataFrame(csv)
-        df.to_csv("test.csv", sep=',', encoding='utf-8', header=True,  index=False)
+        with open(fig_name, mode='w') as csv_file:
+            fieldnames = ['H.264','H.265', self.proposed_label]
+            writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+            writer.writeheader()
+
+            for h4, h5, our in zip(self.plt_h264_psnr, self.plt_h265_psnr, self.plt_our_psnr):
+                writer.writerow({'H.264': h4, 'H.265': h5, self.proposed_label: our})

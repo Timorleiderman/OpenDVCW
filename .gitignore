@@ -42,3 +42,4 @@ tools/ClassB_PSNR.eps
 cpp_encoder/build/*
 *.h265
 *.h264
+*.csv
