@@ -280,9 +280,24 @@ class Evaluator(object):
     def save_csv(self, fig_name="test.csv"):
 
         with open(fig_name, mode='w') as csv_file:
-            fieldnames = ['H.264','H.265', self.proposed_label]
-            writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-            writer.writeheader()
+            if self.tave_run:
+                fieldnames = ['H.264 PSNR', 'H.264 BPP',
+                            'H.265 PSNR', 'H.265 BPP',
+                            self.proposed_label + " PSNR", self.proposed_label + " BPP"]
+                writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+                writer.writeheader()
 
-            for h4, h5, our in zip(self.plt_h264_psnr, self.plt_h265_psnr, self.plt_our_psnr):
-                writer.writerow({'H.264': h4, 'H.265': h5, self.proposed_label: our})
+                for h4_psnr, h4_bpp, h5_psnr, h5_bpp, our_psnr, our_bpp in zip(self.plt_h264_psnr, self.plt_h264_bpp,
+                                                                            self.plt_h265_psnr, self.plt_h265_bpp, 
+                                                                            self.plt_our_psnr ,self.plt_our_bpp,):
+                    
+                    writer.writerow({'H.264 PSNR': h4_psnr, 'H.264 BPP': h4_bpp,
+                                    'H.265 PSNR': h5_psnr,'H.265 BPP': h5_bpp,
+                                    self.proposed_label + " PSNR": our_psnr, self.proposed_label + " BPP": our_bpp})
+                    
+            else:
+                fieldnames = [self.proposed_label + " PSNR", self.proposed_label + " BPP"]
+                writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+                writer.writeheader()
+                for our_psnr, our_bpp in zip(self.plt_our_psnr ,self.plt_our_bpp,):
+                    writer.writerow({self.proposed_label + " PSNR": our_psnr, self.proposed_label + " BPP": our_bpp})
