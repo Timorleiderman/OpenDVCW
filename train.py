@@ -18,7 +18,9 @@ class TrainOpenDVCW(object):
                        num_filters=128, mv_kernel_size=3, res_kernel_size=5, M=128,
                        lmbda=4096, lr_init=1e-4, lr_alpha=1e-8, early_stop=400,
                        i_qp=27, wavelet_name="haar", checkponts_prev_path="", checkpoints_target_path = "",
-                       np_folder="folder_cloud_test.npy") -> None:
+                       np_folder="folder_cloud_test.npy", 
+                       workers = 1,
+                       use_multiprocessing=False) -> None:
 
         self.batch_size = batch_size
         self.epoch = epoch
@@ -58,6 +60,8 @@ class TrainOpenDVCW(object):
                                                   True, 
                                                   self.I_QP,
                                                   True)
+        self.workrs = workers
+        self.use_multiprocessing = use_multiprocessing
     def compile(self):
         self.model = OpenDVCW.OpenDVCW(width=self.width, height=self.height,channels=self.channels,batch_size=self.batch_size,
                                         num_filters=self.num_filters, mv_kernel_size=self.mv_kernel_size,
@@ -85,6 +89,9 @@ class TrainOpenDVCW(object):
                     tf.keras.callbacks.EarlyStopping(monitor=monitor, patience=self.early_stop),
                     tf.keras.callbacks.TensorBoard(log_dir=self.log_dir, histogram_freq=0, update_freq=save_freq),            
                     ],
+                workers=self.workrs,
+                use_multiprocessing=self.use_multiprocessing
+                
 				)
     def test(self, i_frame, p_frame, out_bin, out_decom):
 
