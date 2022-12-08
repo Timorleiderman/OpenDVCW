@@ -43,3 +43,5 @@ cpp_encoder/build/*
 *.h265
 *.h264
 *.csv
+.vscode/*
+build/*

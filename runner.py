@@ -1,9 +1,10 @@
 import evaluator
 
 model_dir = "/mnt/WindowsDev/PreTainedModels/OpenDVCW/"
-label = "Proposed-haar60k"
+label = "Proposed-haar200k"
 output_path = "/mnt/WindowsDev/Timor/Study/TEZA/RES/"
 num_of_p_frames = 7
+
 # model_list = [
 #     model_dir + "HAAR/model_save_checkpoints_wavelets_haar_Lmbd_256_nfilt_256_epcs_15_stps_10000_I_QP_42_240x240_CosineDecay_20220705-061459/",
 #     model_dir + "HAAR/model_save_checkpoints_wavelets_haar_Lmbd_1024_nfilt_256_epcs_15_stps_10000_I_QP_37_240x240_CosineDecay_20220704-225023/",
@@ -37,13 +38,23 @@ num_of_p_frames = 7
 # ]
 
 
+# model_list = [
+#     model_dir + "HAAR60k/model_save_checkpoints_wavelets_haar_Lmbd_256_nfilt_256_epcs_15_stps_60000_I_QP_42_240x240_CosineDecay_20221203-191019/",
+#     model_dir + "HAAR60k/model_save_checkpoints_wavelets_haar_Lmbd_1024_nfilt_256_epcs_15_stps_60000_I_QP_35_240x240_CosineDecay_20221204-145313/",
+#     model_dir + "HAAR60k/model_save_checkpoints_wavelets_haar_Lmbd_4096_nfilt_256_epcs_15_stps_60000_I_QP_32_240x240_CosineDecay_20221202-182053/",
+#     model_dir + "HAAR60k/model_save_checkpoints_wavelets_haar_Lmbd_16384_nfilt_256_epcs_15_stps_60000_I_QP_27_240x240_CosineDecay_20221202-054609/",
+#     model_dir + "HAAR60k/model_save_checkpoints_wavelets_haar_Lmbd_65536_nfilt_256_epcs_15_stps_60000_I_QP_22_240x240_CosineDecay_20221201-171832/"
+# ]
+
+
 model_list = [
-    model_dir + "HAAR60000/model_save_checkpoints_wavelets_haar_Lmbd_256_nfilt_256_epcs_15_stps_60000_I_QP_42_240x240_CosineDecay_20221129-073153/",
-    model_dir + "HAAR60000/model_save_checkpoints_wavelets_haar_Lmbd_1024_nfilt_256_epcs_15_stps_60000_I_QP_37_240x240_CosineDecay_20221130-193806/",
-    model_dir + "HAAR60000/model_save_checkpoints_wavelets_haar_Lmbd_4096_nfilt_256_epcs_15_stps_60000_I_QP_32_240x240_CosineDecay_20221128-020701/",
-    model_dir + "HAAR60000/model_save_checkpoints_wavelets_haar_Lmbd_16384_nfilt_256_epcs_15_stps_60000_I_QP_27_240x240_CosineDecay_20221127-103509/",
-    model_dir + "HAAR60000/model_save_checkpoints_wavelets_haar_Lmbd_65536_nfilt_256_epcs_15_stps_60000_I_QP_22_240x240_CosineDecay_20221126-181631/"
+    model_dir + "HAAR200k/model_save_checkpoints_wavelets_haar_Lmbd_256_nfilt_256_epcs_5_stps_200000_I_QP_42_240x240_CosineDecay_20221207-161406/",
+    model_dir + "HAAR200k/model_save_checkpoints_wavelets_haar_Lmbd_1024_nfilt_256_epcs_5_stps_200000_I_QP_35_240x240_CosineDecay_20221207-022051/",
+    model_dir + "HAAR200k/model_save_checkpoints_wavelets_haar_Lmbd_4096_nfilt_256_epcs_5_stps_200000_I_QP_32_240x240_CosineDecay_20221206-123302/",
+    model_dir + "HAAR200k/model_save_checkpoints_wavelets_haar_Lmbd_16384_nfilt_256_epcs_5_stps_200000_I_QP_27_240x240_CosineDecay_20221205-224634/",
+    model_dir + "HAAR200k/model_save_checkpoints_wavelets_haar_Lmbd_65536_nfilt_256_epcs_5_stps_200000_I_QP_22_240x240_CosineDecay_20221205-085653/"
 ]
+
 
 # Beauty_1920x1080_120fps_420_8bit_YUV_RAW for db2
 input_seq_path =  "/mnt/WindowsDev/DataSets/Beauty_1920x1080_120fps_420_8bit_YUV_RAW/"
