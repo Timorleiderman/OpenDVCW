@@ -63,10 +63,15 @@ class TrainOpenDVCW(object):
         self.workrs = workers
         self.use_multiprocessing = use_multiprocessing
     def compile(self):
-        self.model = OpenDVCW.OpenDVCW(width=self.width, height=self.height,channels=self.channels,batch_size=self.batch_size,
-                                        num_filters=self.num_filters, mv_kernel_size=self.mv_kernel_size,
-                                        res_kernel_size=self.res_kernel_size, M=self.M, lmbda=self.lmbda,
-                                        wavelet_name=self.wavelet_name)
+        if self.wavelet_name == "":
+            self.model = OpenDVCW.OpenDVCW(width=self.width, height=self.height,channels=self.channels,batch_size=self.batch_size,
+                                            num_filters=self.num_filters, mv_kernel_size=self.mv_kernel_size,
+                                            res_kernel_size=self.res_kernel_size, M=self.M, lmbda=self.lmbda,
+                                            wavelet_name=self.wavelet_name)
+        else:    
+            self.model = OpenDVCW.OpenDVC(width=self.width, height=self.height,channels=self.channels,batch_size=self.batch_size,
+                                            num_filters=self.num_filters, mv_kernel_size=self.mv_kernel_size,
+                                            res_kernel_size=self.res_kernel_size, M=self.M, lmbda=self.lmbda)
 
         lr_schedule = tf.keras.optimizers.schedules.CosineDecay(
             initial_learning_rate=self.lr_init, decay_steps=self.epoch*(self.steps_per_epoch), alpha=self.lr_alpha, name="lr_CosineDecay")
