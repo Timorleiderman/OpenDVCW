@@ -108,6 +108,9 @@ RUN echo $TZ > /etc/timezone && \
     dpkg-reconfigure -f noninteractive tzdata && \
     apt-get clean
 
+# color for optical flow
+RUN pip3 install --upgrade pip
+RUN pip3 install flow_vis
 
 RUN useradd -ms /bin/bash ubu-admin
 
