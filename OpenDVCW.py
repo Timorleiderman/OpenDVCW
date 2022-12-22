@@ -143,6 +143,9 @@ class WaveletsOpticalFlow(tf.keras.layers.Layer):
             wavelet_name = "haar"
         self.dwt_db2 = DWT.DWT(wavelet_name, concat=1)
 
+    def build(self, input_shape):
+        super(WaveletsOpticalFlow, self).build(input_shape)
+        
     def call(self, inputs, training=None, mask=None):
         
         im1_4 = inputs[0]
@@ -175,13 +178,13 @@ class WaveletsOpticalFlow(tf.keras.layers.Layer):
         flow_zero = tf.zeros_like(im2_0[:, :, :, 0:2], dtype=tf.float32)
         # flow_zero = tf.zeros((self.batch_size, self.width//2, self.height//2, 2), dtype=tf.float32)
 
-        loss_0, flow_0 = self.optic_loss([flow_zero, im1_0, im2_0])
-        loss_1, flow_1 = self.optic_loss([flow_0, im1_1, im2_1])
-        loss_2, flow_2 = self.optic_loss([flow_1, im1_2, im2_2])
-        loss_3, flow_3 = self.optic_loss([flow_2, im1_3, im2_3])
+        _, flow_0 = self.optic_loss([flow_zero, im1_0, im2_0])
+        _, flow_1 = self.optic_loss([flow_0, im1_1, im2_1])
+        _, flow_2 = self.optic_loss([flow_1, im1_2, im2_2])
+        _, flow_3 = self.optic_loss([flow_2, im1_3, im2_3])
         loss_4, flow_4 = self.optic_loss([flow_3, im1_4, im2_4])
 
-        return flow_4
+        return loss_4, flow_4
 
 
 class OpticalFlow(tf.keras.layers.Layer):
@@ -194,6 +197,9 @@ class OpticalFlow(tf.keras.layers.Layer):
         self.width = width
         self.height = height
 
+    def build(self, input_shape):
+        super(OpticalFlow, self).build(input_shape)
+        
     def call(self, inputs, training=None, mask=None):
         
         im1_4 = inputs[0]
@@ -211,13 +217,13 @@ class OpticalFlow(tf.keras.layers.Layer):
         
         flow_zero = tf.zeros((self.batch_size, self.width, self.height, 2), dtype=tf.float32)
 
-        loss_0, flow_0 = self.optic_loss([flow_zero, im1_0, im2_0])
-        loss_1, flow_1 = self.optic_loss([flow_0, im1_1, im2_1])
-        loss_2, flow_2 = self.optic_loss([flow_1, im1_2, im2_2])
-        loss_3, flow_3 = self.optic_loss([flow_2, im1_3, im2_3])
+        _, flow_0 = self.optic_loss([flow_zero, im1_0, im2_0])
+        _, flow_1 = self.optic_loss([flow_0, im1_1, im2_1])
+        _, flow_2 = self.optic_loss([flow_1, im1_2, im2_2])
+        _, flow_3 = self.optic_loss([flow_2, im1_3, im2_3])
         loss_4, flow_4 = self.optic_loss([flow_3, im1_4, im2_4])
 
-        return flow_4
+        return loss_4, flow_4
 
 
 class AnalysisTransform(tf.keras.Sequential):
@@ -277,7 +283,7 @@ class OpenDVCW(tf.keras.Model):
         entropy_model_mv = tfc.ContinuousBatchedEntropyModel(self.prior_mv, coding_rank=3, compression=False)
         entropy_model_res = tfc.ContinuousBatchedEntropyModel(self.prior_res, coding_rank=3, compression=False)
 
-        flow_tensor = self.optical_flow([Y0_com, Y1_raw])
+        _, flow_tensor = self.optical_flow([Y0_com, Y1_raw])
         flow_latent = self.mv_analysis_transform(flow_tensor)
         flow_latent_hat, MV_likelihoods_bits = entropy_model_mv(flow_latent, training=training)
         flow_hat = self.mv_synthesis_transform(flow_latent_hat)
@@ -444,7 +450,7 @@ class OpenDVC(tf.keras.Model):
         entropy_model_mv = tfc.ContinuousBatchedEntropyModel(self.prior_mv, coding_rank=3, compression=False)
         entropy_model_res = tfc.ContinuousBatchedEntropyModel(self.prior_res, coding_rank=3, compression=False)
 
-        flow_tensor = self.optical_flow([Y0_com, Y1_raw])
+        _, flow_tensor = self.optical_flow([Y0_com, Y1_raw])
         flow_latent = self.mv_analysis_transform(flow_tensor)
         flow_latent_hat, MV_likelihoods_bits = entropy_model_mv(flow_latent, training=training)
         flow_hat = self.mv_synthesis_transform(flow_latent_hat)
@@ -495,7 +501,7 @@ class OpenDVC(tf.keras.Model):
         Y0_com = tf.cast(Y0_com / 255, dtype=tf.float32)
         Y1_raw = tf.cast(Y1_raw / 255, dtype=tf.float32)
 
-        flow_tensor = self.optical_flow([Y0_com, Y1_raw])
+        _, flow_tensor = self.optical_flow([Y0_com, Y1_raw])
         # print("flow_tensor ", flow_tensor.shape)
         flow_latent = self.mv_analysis_transform(flow_tensor)
         flow_latent_hat, _ = self.entropy_model_mv(flow_latent, training=False)

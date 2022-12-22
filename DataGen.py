@@ -9,9 +9,10 @@ import fnmatch
 from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
+
 class DataVimeo90kGenerator(tf.keras.utils.Sequence):
     'Generates data for Keras'
-    def __init__(self, np_folder, samples=32, dim=(240,240,32), n_channels=3, shuffle=True, I_QP=27, norm=False): 
+    def __init__(self, np_folder, samples=32, dim=(240,240,32), n_channels=3, shuffle=True, I_QP=27, norm=False, list_output=True): 
         'Initialization'
         self.dim = dim
         self.samples = samples
@@ -21,16 +22,22 @@ class DataVimeo90kGenerator(tf.keras.utils.Sequence):
         self.shuffle = shuffle
         self.i_qp = I_QP
         self.norm = norm
+        self.list_output = list_output
         self.on_epoch_end()
     def __len__(self):
         'Denotes the number of batches per epoch'
-        return int(len(np.load(self.np_folder))/self.samples)
+        
+        return int(len(self.paths)/self.samples)
 
     def __getitem__(self, index):
         'Generate one batch of data'
         # Generate indexes of the batch
         # Generate data
-        return self.__data_generation(index)
+        ret = self.__data_generation(index)
+        if not self.list_output:
+            return [ret[0], ret[1]], [0.0]
+        else:
+            return self.__data_generation(index)
 
     def on_epoch_end(self):
         'Updates indexes after each epoch'
