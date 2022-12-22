@@ -99,6 +99,16 @@ RUN apt install libavcodec-dev libavformat-dev libavfilter-dev libavdevice-dev l
 
 RUN pip3 install pandas
 
+
+ENV TZ 'Asia/Jerusalem'
+RUN echo $TZ > /etc/timezone && \
+    apt-get update && apt-get install -y tzdata && \
+    rm /etc/localtime && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    dpkg-reconfigure -f noninteractive tzdata && \
+    apt-get clean
+
+
 RUN useradd -ms /bin/bash ubu-admin
 
 # RUN mkdir /workspaces/OpenDVCW/cpp_encoder/build
