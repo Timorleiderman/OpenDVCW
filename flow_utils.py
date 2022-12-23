@@ -1,4 +1,4 @@
-import os
+import cv2
 import re
 import numpy as np
 import tensorflow as tf
@@ -298,3 +298,21 @@ def bilinear_warp(x, flow):
     c_11 = tf.expand_dims((fy - fy_0)*(fx - fx_0), axis = 3)
 
     return c_00*x_00 + c_01*x_01 + c_10*x_10 + c_11*x_11
+
+
+
+def draw_flow(img, flow, step=12):
+
+    h, w = img.shape[:2]
+    y, x = np.mgrid[step/2:h:step, step/2:w:step].reshape(2,-1).astype(int)
+    fx, fy = flow.numpy()[x,y].T
+
+    lines = np.vstack([x, y, x-fx, y-fy]).T.reshape(-1, 2, 2)
+    lines = np.int32(lines + 0.5)
+
+    cv2.polylines(img, lines, 0, (0, 255, 0))
+
+    for (x1, y1), (_x2, _y2) in lines:
+        cv2.circle(img, (x1, y1), 1, (0, 255, 0), -1)
+
+    return img
