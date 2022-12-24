@@ -99,20 +99,22 @@ def plot_quiver(ax, flow, spacing, margin=0, **kwargs):
 def plot_ffpmv(im1, im2, flow, spacing=8, title="", figsize=(10, 10), clear=True):
     if clear:
         clear_output(wait=True) 
-        
+    
+    im1_norm = cv2.normalize(im1, None, 255, 0, cv2.NORM_MINMAX, cv2.CV_8U)
+    im2_norm = cv2.normalize(im2, None, 255, 0, cv2.NORM_MINMAX, cv2.CV_8U)
     fig, ax = plt.subplots(1, 4, figsize=figsize)
+    
     ax[0].imshow(flow_utils.flow_to_image(flow))
     ax[0].axis("off")
     ax[0].set_title("optical flow vis")
     
-    ax[1].imshow(cv2.normalize(im2, None, 255, 0, cv2.NORM_MINMAX, cv2.CV_8U))
+    ax[1].imshow(im1_norm)
     ax[1].axis("off")
-    ax[1].set_title("Image 2 with motion vectors")
+    ax[1].set_title("Image 2 ")
     
-    flow_to_draw = flow_utils.draw_flow(im1, np.swapaxes(flow, 0,1), spacing)
-    ax[2].imshow(cv2.normalize(flow_to_draw, None, 255, 0, cv2.NORM_MINMAX, cv2.CV_8U))
+    ax[2].imshow(flow_utils.draw_flow(im2_norm, np.swapaxes(flow, 0,1), spacing))
     ax[2].axis("off")
-    ax[2].set_title("Image 1")
+    ax[2].set_title("Image 1 with motion vectors")
     
     plot_quiver(ax[3], flow, spacing=spacing, margin=0, scale=1, color="#00FF00") 
     ax[3].set_title("Motion Vectors")
