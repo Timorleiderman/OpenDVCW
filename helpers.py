@@ -22,18 +22,18 @@ def plot_ip_ff_vv(i_frame, p_frame, flow, flow_w, figsize=(20, 20), clear=True):
     
     ax[1, 0].imshow(flow_color)
     ax[1, 0].axis('off')
-    ax[1, 0].set_title("Optical Flow DVC")
+    ax[1, 0].set_title("OpticalFlow DVC")
     
     ax[1, 1].imshow(flow_color_w)
-    ax[1, 1].set_title("Optical Flow ODVCW")
+    ax[1, 1].set_title("OpticalFlow ODVCW")
     ax[1, 1].axis('off')
     
     ax[2, 0].imshow(draw_flow(p_frame, flow_w))
-    ax[2, 0].set_title("m-vectors-w")
+    ax[2, 0].set_title("m-vectors ODVCW")
     ax[2, 0].axis('off')
     
     ax[2, 1].imshow(draw_flow(p_frame, flow))
-    ax[2, 0].set_title("m-vectors")
+    ax[2, 1].set_title("m-vectors DVC")
     ax[2, 1].axis('off')
     plt.show()
     
