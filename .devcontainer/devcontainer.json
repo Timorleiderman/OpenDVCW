@@ -32,7 +32,8 @@
 				"yzhang.markdown-all-in-one",
 				"ms-python.python",
 				"ms-toolsai.jupyter",
-				"knisterpeter.vscode-github"
+				"knisterpeter.vscode-github",
+				"njpwerner.autodocstring"
 			]
 		}
 	}

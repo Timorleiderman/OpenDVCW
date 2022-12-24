@@ -120,25 +120,45 @@ def plot_ffpmv(im1, im2, flow, spacing=8, title="", figsize=(10, 10), clear=True
     fig.tight_layout()
     plt.show()
 
+
 class FlyingChairsFlags():
-    
-    data_dir = "/mnt/WindowsDev/DataSets/FlyingChairs/data/"  #, 'Link to dataset directory.')
-    train_list = "/mnt/WindowsDev/DataSets/FlyingChairs/train_0.03split.txt"  #'Link to validation list.')
-    val_list ="/mnt/WindowsDev/DataSets/FlyingChairs/val_0.03split.txt"  #, "Link to validation list.")
-    losses_weight = [0.32, 0.08, 0.02, 0.01, 0.005]  # Loss weights for 6th to 2nd flow predictions, as described in the original paper.')
-    gamma = 0.0004  
-    batch_size = 1 
-    dataset = 'mixed'  # ['mixed', 'chairs', 'things3d_ft'], None)
-
-    #chedule for training from scratch. Train on the mixed dataset of FlyingChairs and FlyingThings3D.
-    lr_boundaries = [400000, 600000, 800000, 1000000]
-    lr = 0.0001
-    num_steps =1500000
-    crop_size =[240, 240]
-
-    steps_per_save =10000
-    steps_per_eval = 1000
-    log_freq = 50
-
-    random_scale = False  
-    random_flip = False  
+    def __init__(self, 
+                data_dir = "/mnt/WindowsDev/DataSets/FlyingChairs/data/",  #, 'Link to dataset directory.'),
+                train_list = "/mnt/WindowsDev/DataSets/FlyingChairs/train_0.03split.txt",  #'Link to validation list.')
+                val_list ="/mnt/WindowsDev/DataSets/FlyingChairs/val_0.03split.txt",  #, "Link to validation list.")
+                losses_weight = [0.32, 0.08, 0.02, 0.01, 0.005],  # Loss weights for 6th to 2nd flow predictions, as described in the original paper.')
+                gamma = 0.0004,
+                batch_size = 1,
+                dataset = 'mixed',  # ['mixed', 'chairs', 'things3d_ft'], None)
+                #chedule for training from scratch. Train on the mixed dataset of FlyingChairs and FlyingThings3D.
+                lr_boundaries = [400000, 600000, 800000, 1000000],
+                lr = 0.0001,
+                num_steps =1500000,
+                crop_size =[240, 240],
+                steps_per_save =10000,
+                steps_per_eval = 1000,
+                log_freq = 50,
+                random_scale = False,
+                random_flip = False):
+        
+        self.data_dir = data_dir
+        self.train_list = train_list
+        self.val_list = val_list
+        self.losses_weight = losses_weight
+        self.gamma = gamma
+        self.batch_size = batch_size
+        self.dataset = dataset
+        self.lr_boundaries = lr_boundaries
+        self.lr = lr
+        self.num_steps = num_steps
+        self.crop_size = crop_size
+        self.steps_per_save = steps_per_save
+        self.steps_per_eval = steps_per_eval
+        self.log_freq = log_freq
+        self.log_freq = log_freq
+        self.random_scale = random_scale
+        self.random_flip = random_flip  
+        
+        
+        
+        
