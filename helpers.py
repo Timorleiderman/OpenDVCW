@@ -137,6 +137,7 @@ class FlyingChairsFlags():
                 lr = 0.0001,
                 num_steps =1500000,
                 crop_size =[240, 240],
+                val_crop = True,
                 steps_per_save =10000,
                 steps_per_eval = 1000,
                 log_freq = 50,
@@ -154,12 +155,14 @@ class FlyingChairsFlags():
         self.lr = lr
         self.num_steps = num_steps
         self.crop_size = crop_size
+        self.val_crop = val_crop
         self.steps_per_save = steps_per_save
         self.steps_per_eval = steps_per_eval
         self.log_freq = log_freq
         self.log_freq = log_freq
         self.random_scale = random_scale
         self.random_flip = random_flip  
+        
         
         
         

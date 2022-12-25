@@ -248,9 +248,11 @@ class DataLoader(object):
         if self.val_list:
             '''Prepare for validation dataset'''
             val_dataset = tf.data.Dataset.from_tensor_slices((self.val_im1_ls, self.val_im2_ls, self.val_flo_ls))
-            val_dataset = val_dataset.map(lambda x, y, z: 
-                                            tf_parse_function(x, y, z), num_parallel_calls=8)
-            val_dataset = val_dataset.map(lambda x, y, z, v: [tf.concat([x, y], axis=2), z], num_parallel_calls=8)
+            val_dataset = val_dataset.map(lambda x, y, z: tf_parse_function(x, y, z), num_parallel_calls=8)
+            if flags.val_crop:
+                val_dataset = val_dataset.map(lambda x, y, z, v: tf_image_crop(x, y, z, v, flags.crop_size), num_parallel_calls=8)
+            val_dataset = val_dataset.map(lambda x, y, z: [tf.concat([x, y], axis=2), z], num_parallel_calls=8)
+            
             val_dataset = val_dataset.batch(1)
         
         return train_dataset, val_dataset
