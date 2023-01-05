@@ -112,7 +112,7 @@ def plot_ffpmv(im1, im2, flow, spacing=8, title="", figsize=(10, 10), clear=True
     ax[1].axis("off")
     ax[1].set_title("Image 2 ")
     
-    ax[2].imshow(flow_utils.draw_flow(im2_norm, np.swapaxes(flow, 0,1), spacing))
+    ax[2].imshow(im2_norm)
     ax[2].axis("off")
     ax[2].set_title("Image 1 with motion vectors")
     

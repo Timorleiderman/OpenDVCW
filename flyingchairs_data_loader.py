@@ -253,7 +253,7 @@ class DataLoader(object):
                 val_dataset = val_dataset.map(lambda x, y, z, v: tf_image_crop(x, y, z, v, flags.crop_size), num_parallel_calls=8)
             val_dataset = val_dataset.map(lambda x, y, z: [tf.concat([x, y], axis=2), z], num_parallel_calls=8)
             
-            val_dataset = val_dataset.batch(1)
+            val_dataset = val_dataset.batch(flags.batch_size, drop_remainder=True)
         
         return train_dataset, val_dataset
 
