@@ -8,7 +8,7 @@
 
 
 ```
-sudo apt-get update -qq && sudo apt-get -y install autoconf automake build-essential cmake git-core libass-dev libfreetype6-dev libgnutls28-dev libmp3lame-dev libsdl2-dev libtool libva-dev libvdpau-dev libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev meson ninja-build pkg-config texinfo wget yasm zlib1g-dev 
+sudo apt-get update -qq && sudo apt-get -y install autoconf automake build-essential cmake git-core libass-dev libfreetype6-dev libgnutls28-dev libmp3lame-dev libsdl2-dev libtool libva-dev libvdpau-dev libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev meson ninja-build pkg-config texinfo wget yasm zlib1g-dev libxml2-dev
 
 mkdir -p ~/ffmpeg_sources ~/bin
 
@@ -58,6 +58,30 @@ export PKG_CONFIG_PATH+=":/usr/local/lib/pkgconfig"
 git apply ../SVT-AV1/ffmpeg_plugin/0001-Add-ability-for-ffmpeg-to-run-svt-av1.patch
 ./configure --enable-libsvtav1
 ###################################################################################
+
+
+#################### VVC H266 ##########################
+cd ~/ffmpeg_sources
+git clone https://github.com/fraunhoferhhi/vvenc
+cd vvenc
+sudo make install-release install-prefix=/usr/local
+cd ~/ffmpeg_sources
+git clone https://github.com/fraunhoferhhi/vvdec
+cd vvdec
+sudo make install-release install-prefix=/usr/local
+
+
+git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
+cd ffmpeg
+git checkout 2532e832d2
+wget -O Add-support-for-H266-VVC.patch https://patchwork.ffmpeg.org/series/9992/mbox/
+git apply --check Add-support-for-H266-VVC.patch
+git apply Add-support-for-H266-VVC.patch
+./configure  --enable-pthreads --enable-pic --enable-shared --enable-rpath --arch=amd64 --enable-demuxer=dash --enable-libxml2 --enable-libvvdec --enable-libvvenc
+#################################################
+
+
+
 
 
 cd ~/ffmpeg_sources && \
