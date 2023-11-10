@@ -8,11 +8,14 @@
 
 
 ```
-sudo apt-get update -qq && sudo apt-get -y install autoconf automake build-essential cmake git-core libass-dev libfreetype6-dev libgnutls28-dev libmp3lame-dev libsdl2-dev libtool libva-dev libvdpau-dev libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev meson ninja-build pkg-config texinfo wget yasm zlib1g-dev
+sudo apt-get update -qq && sudo apt-get -y install autoconf automake build-essential cmake git-core libass-dev libfreetype6-dev libgnutls28-dev libmp3lame-dev libsdl2-dev libtool libva-dev libvdpau-dev libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev meson ninja-build pkg-config texinfo wget yasm zlib1g-dev 
 
 mkdir -p ~/ffmpeg_sources ~/bin
 
+sudo apt-get install libopencv-dev
+sudo apt-get install libunistring-dev
 sudo apt-get install nasm
+sudo apt-get install yasm
 sudo apt-get install libx264-dev
 sudo apt-get install libx265-dev libnuma-dev
 sudo apt-get install libvpx-dev
@@ -28,6 +31,33 @@ PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/f
 PATH="$HOME/bin:$PATH" make && \
 make install
 
+
+# optional:
+sudo apt-get install itstool
+git clone --depth=1 https://code.videolan.org/videolan/dav1d.git && \
+cd dav1d && \
+mkdir build && cd build && \
+meson --bindir="/usr/local/bin" .. && \
+ninja && \
+ninja install
+
+
+###################################### SVT av1 ###################################
+# optional:
+git clone --depth=1 https://gitlab.com/AOMediaCodec/SVT-AV1.git
+cd SVT-AV1
+cd Build
+cmake .. -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
+make -j $(nproc)
+sudo make install
+cd ~
+git clone -b release/4.2 --depth=1 https://github.com/FFmpeg/FFmpeg ffmpeg
+cd ffmpeg
+export LD_LIBRARY_PATH+=":/usr/local/lib"
+export PKG_CONFIG_PATH+=":/usr/local/lib/pkgconfig"
+git apply ../SVT-AV1/ffmpeg_plugin/0001-Add-ability-for-ffmpeg-to-run-svt-av1.patch
+./configure --enable-libsvtav1
+###################################################################################
 
 
 cd ~/ffmpeg_sources && \
