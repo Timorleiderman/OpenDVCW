@@ -78,7 +78,7 @@ def run(input_seq_path, h264_bit_rate, h265_bit_rate, h266_bit_rate):
                             h266_workdir=h266_workdir, h266_bitrate_list=h266_bit_rate, 
                             proposed_label=label)
     eva.eval(tave_run=True)
-    eva.plot_graph(fig_name=output_path +input_seq_path.split("/")[-2] + label + ".eps")
+    eva.plot_graph(fig_name=output_path + input_seq_path.split("/")[-2] + label + ".svg")
     eva.save_csv(output_path + input_seq_path.split("/")[-2] + label + ".csv")
 
 
@@ -86,14 +86,14 @@ def run(input_seq_path, h264_bit_rate, h265_bit_rate, h266_bit_rate):
 input_seq_path =  dataset_dir + "Beauty_1920x1080_120fps_420_8bit_YUV_RAW/"
 h264_bit_rate = [0.5e6, 1.5e6, 3e6, 5e6, 6e6]
 h265_bit_rate = [0.5e6, 1.5e6, 3e6, 5e6, 6e6]
-h266_bit_rate = [0.5e6, 1.5e6, 3e6, 5e6, 6e6]
+h266_bit_rate = [0.1e6, 2e6, 5e6, 7e6, 9e6]
 run(input_seq_path, h264_bit_rate, h265_bit_rate, h266_bit_rate)
 
 # Bosphorus_1920x1080_120fps_420_8bit_YUV_raw for db2
 input_seq_path = dataset_dir + "Bosphorus_1920x1080_120fps_420_8bit_YUV_raw/"
 h264_bit_rate = [0.8e6, 3e6, 6e6, 8e6, 11e6]
 h265_bit_rate = h264_bit_rate
-h266_bit_rate = h264_bit_rate
+h266_bit_rate = [0.4e6, 2e6, 6e6, 10e6, 14e6]
 run(input_seq_path, h264_bit_rate, h265_bit_rate, h266_bit_rate)
 
 # ShakeNDry_1920x1080_120fps_420_8bit_YUV_RAW for db2

@@ -308,7 +308,7 @@ class Evaluator(object):
                 
                 
     def plot_graph(self, fig_name="", title=''):
-        font = {'family': 'Arial', 'weight': 'normal', 'size': 14}
+        font = {'family': 'DeJavu Serif', 'weight': 'normal', 'size': 14}
         matplotlib.rc('font', **font)
         line_width = 3
         
@@ -329,7 +329,7 @@ class Evaluator(object):
         plt.ylabel('PSNR(dB)')
         plt.title(title)
         if fig_name != "":
-            plt.savefig(fig_name, format='eps', dpi=600, bbox_inches='tight')   
+            plt.savefig(fig_name, format='svg', dpi=600, bbox_inches='tight', transparent=True)   
         plt.close()
 
     def save_csv(self, fig_name="test.csv"):

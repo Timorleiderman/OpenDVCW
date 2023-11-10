@@ -37,7 +37,8 @@
 				"ms-vscode.cpptools",
 				"ms-vscode.cmake-tools",
 				"mhutchie.git-graph",
-				"analytic-signal.preview-mp4"
+				"analytic-signal.preview-mp4",
+				"donjayamanne.python-extension-pack"
 			]
 		}
 	}

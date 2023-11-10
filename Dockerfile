@@ -177,8 +177,7 @@ RUN cd ffmpeg && \
     make -j && \
     make install
 
-# Install Python dependencies
-RUN pip install -r requirements.txt
+
 
 
 
@@ -191,6 +190,9 @@ RUN pip install -r requirements.txt
 #   make && \
 #   make install
 
+RUN apt-get install msttcorefonts font-manager -y
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
 RUN useradd -ms /bin/bash ubu-admin
 
 # RUN mkdir /workspaces/OpenDVCW/cpp_encoder/build
