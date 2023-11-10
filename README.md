@@ -30,4 +30,10 @@ Based on
 > Lu, Guo, *et al.* "DVC: An end-to-end deep video compression framework." *Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)*. 2019.
 [Paper](https://arxiv.org/abs/2006.15862)
 
+# conda env
+```
+conda create -n py38 python=3.8
+pip install -r 
+```
 **Free Software, Hell Yeah!**
+

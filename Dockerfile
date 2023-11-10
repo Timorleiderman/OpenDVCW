@@ -112,6 +112,85 @@ RUN echo $TZ > /etc/timezone && \
 RUN pip3 install --upgrade pip
 RUN pip3 install flow_vis
 
+# # ffmpeg with vvc
+
+# cd ~/ffmpeg_sources
+# git clone https://github.com/fraunhoferhhi/vvenc
+# cd vvenc
+# sudo make install install-prefix=/usr/local
+# cd ~/ffmpeg_sources
+# git clone https://github.com/fraunhoferhhi/vvdec
+# cd vvdec
+# sudo make install install-prefix=/usr/local
+
+
+# Install required dependencies
+RUN apt-get update -y && \
+    apt-get install -y \
+        autotools-dev \
+        libogg-dev \
+        libavutil-dev \
+        libswscale-dev \
+        libavresample-dev \
+        libxml2-dev 
+
+
+################################    vvc h266 install ##################################
+WORKDIR /ffmpeg_build
+# Clone the FFmpeg repository
+RUN git clone https://github.com/fraunhoferhhi/vvenc vvenc && \
+    cd vvenc && \
+    make -j && \
+    make install install-prefix=/usr/local
+
+RUN git clone https://github.com/fraunhoferhhi/vvdec vvdec && \
+    cd vvdec && \
+    make -j && \
+    make install install-prefix=/usr/local
+
+RUN git config --global http.sslverify false && \
+    git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg && \
+    cd ffmpeg && \
+    git checkout 2532e832d2
+
+# Download the patch and apply it
+RUN cd ffmpeg && \
+    wget -O Add-support-for-H266-VVC.patch https://patchwork.ffmpeg.org/series/9992/mbox/ --no-check-certificate && \
+    git apply --check Add-support-for-H266-VVC.patch && \
+    git apply Add-support-for-H266-VVC.patch
+
+# # Configure, build, and install FFmpeg
+RUN cd ffmpeg && \
+    ./configure \
+        --enable-pthreads \
+        --enable-pic \
+        --enable-gpl \
+        --enable-shared \
+        --enable-rpath \
+        --arch=amd64 \
+        --enable-demuxer=dash \
+        --enable-libxml2 \
+        --enable-libvvdec \
+        --enable-libx264 \
+        --enable-libx265 \
+        --enable-libvvenc && \
+    make -j && \
+    make install
+
+# Install Python dependencies
+RUN pip install -r requirements.txt
+
+
+
+# RUN cd /ffmpeg_sources && \
+#   wget https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.bz2 && \
+#   tar xjvf nasm-2.15.05.tar.bz2 && \
+#   cd nasm-2.15.05 && \
+#   ./autogen.sh && \
+#   PATH="/bin:$PATH" ./configure --prefix="/ffmpeg_build" --bindir="/bin" && \
+#   make && \
+#   make install
+
 RUN useradd -ms /bin/bash ubu-admin
 
 # RUN mkdir /workspaces/OpenDVCW/cpp_encoder/build

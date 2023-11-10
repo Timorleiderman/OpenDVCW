@@ -45,3 +45,8 @@ cpp_encoder/build/*
 *.csv
 .vscode/*
 build/*
+Test_com1/*
+Test_com/*
+workdir/*
+vvdec/*
+vvenc/*

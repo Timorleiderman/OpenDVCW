@@ -208,32 +208,49 @@ int main(int argc, char *argv[])
      */
     //c->gop_size = 10;
     //c->max_b_frames = 1;
-    c->pix_fmt = AV_PIX_FMT_YUV444P;
-    c1->pix_fmt = AV_PIX_FMT_YUV444P;
+
+
+    
 
     std::string main_path = input_path_arg;
     std::string workdir_str = workdir;
     std::string prefix_str = prefix;
     std::string suffix_str = suffix;
 
+    // c->pix_fmt = AV_PIX_FMT_YUV444P;
+    // c1->pix_fmt = AV_PIX_FMT_YUV444P;
+    c->pix_fmt = AV_PIX_FMT_YUV420P10;
+    c1->pix_fmt = AV_PIX_FMT_YUV420P10;
+
     if (codec->id == AV_CODEC_ID_H264){
         
+
         config.extension = ".h264"; 
         config.joined_file = workdir_str + "/output_joined.h264";
+        av_opt_set(c->priv_data, "preset", "veryfast", 0);
+
     }
     else if (codec->id == AV_CODEC_ID_H265)
     {
         config.extension = ".h265"; 
         config.joined_file = workdir_str + "/output_joined.h265";
+        av_opt_set(c->priv_data, "preset", "veryfast", 0);
+    }
+    else if (codec->id == AV_CODEC_ID_VVC)
+    {   
+        
+        config.extension = ".h266"; 
+        config.joined_file = workdir_str + "/output_joined.h266";
+        av_opt_set(c->priv_data, "preset", "faster", 0);
     }
     else
     {
         config.extension = ".mp4"; 
         config.joined_file = workdir_str + "/output_joined.mp4";
-
+        
     }
     
-    av_opt_set(c->priv_data, "preset", "veryfast", 0);
+    // 
 
     std::cout << "Opening ... " << config.joined_file << std::endl;
     f = fopen(config.joined_file.c_str(), "wb");

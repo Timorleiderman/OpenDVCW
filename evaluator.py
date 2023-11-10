@@ -78,7 +78,8 @@ class Evaluator(object):
                  tave_path="/workspaces/OpenDVCW/cpp_encoder/build/tave",
                  h264_workdir="", h264_bitrate_list=[50e3, 100e3, 200e3, 400e3, 1e5],
                  h265_workdir="", h265_bitrate_list=[50e3, 100e3, 200e3, 400e3, 1e5],
-                 proposed_label="Proposed-Haar") -> None:
+                 h266_workdir="", h266_bitrate_list=[50e3, 100e3, 200e3, 400e3, 1e5],
+                 proposed_label="Proposed-Haar", ffmpeg_path="/usr/local/bin/ffmpeg") -> None:
         # bach size
         self.bs = bs
         self.height = height
@@ -104,25 +105,33 @@ class Evaluator(object):
 
         # the cpp encoder for x264 x265 evaluation
         self.tave_path = tave_path
+        self.ffmpeg_path = ffmpeg_path
+        
         self.h264_workdir = h264_workdir
         self.h264_bitrate_list = h264_bitrate_list
 
         self.h265_workdir = h265_workdir
         self.h265_bitrate_list = h265_bitrate_list
-
+        
+        self.h266_workdir = h266_workdir
+        self.h266_bitrate_list = h266_bitrate_list
         # create paths if not exists
         path_exists(h264_workdir)
         path_exists(h265_workdir)
+        path_exists(h266_workdir)
         path_exists(workdir)
 
         self.encoded_h264 = r"/output_joined.h264"
         self.encoded_h265 = r"/output_joined.h265"
+        self.encoded_h266 = r"/output_joined.h266"
 
         self.proposed_label = proposed_label
         # results
         self.res = dict()
         self.h264_res = dict()
         self.h265_res = dict()
+        self.h266_res = dict()
+        
         self.i_frame = os.path.join(self.input_seq_path, self.prefix + str(0) + self.suffix)
 
         self.tave_run = False
@@ -177,18 +186,25 @@ class Evaluator(object):
             print("H265 Evaluation ...")
             for bit_rate in self.h265_bitrate_list:
                 self.h265_test(bit_rate)
+            
+            print("H266 Evaluation ...")
+            for bit_rate in self.h266_bitrate_list:
+                self.h266_test(bit_rate)
         self.bpp_psnr()
 
 
     def h264_test(self, bit_rate):
         command = [self.tave_path, "libx264", str(bit_rate), self.input_seq_path,
                    self.prefix, self.suffix, self.h264_workdir, str(self.num_of_p_frames)]
-        print("Command: ", command)
+        print("****************************************************************************************************************")
+        print("Command: ", " ".join(command))
         subprocess.run(command)
 
-        command = ["ffmpeg", "-i", self.h264_workdir + self.encoded_h264, self.h264_workdir + r"/decoded_%04d.png"]
+        command = [self.ffmpeg_path, "-i", self.h264_workdir + self.encoded_h264, self.h264_workdir + r"/decoded_%04d.png"]
 
         subprocess.run(command)
+        print("****************************************************************************************************************")
+        print("Command: ", " ".join(command))
         res = []
         for idx in np.arange(1, self.num_of_p_frames):
                 p_frame = os.path.join(self.input_seq_path, self.prefix + str(idx) + self.suffix)
@@ -201,12 +217,15 @@ class Evaluator(object):
     def h265_test(self, bit_rate):
         command = [self.tave_path, "libx265", str(bit_rate), self.input_seq_path,
                    self.prefix, self.suffix, self.h265_workdir, str(self.num_of_p_frames)]
-        print("Command: ", command)
+        print("****************************************************************************************************************")
+        print("Command: ", " ".join(command))
         subprocess.run(command)
 
-        command = ["ffmpeg", "-i", self.h265_workdir + self.encoded_h265, self.h265_workdir + r"/decoded_%04d.png"]
+        command = [self.ffmpeg_path, "-i", self.h265_workdir + self.encoded_h265, self.h265_workdir + r"/decoded_%04d.png"]
 
         subprocess.run(command)
+        print("****************************************************************************************************************")
+        print("Command: ", " ".join(command))
         res = []
         for idx in np.arange(1, self.num_of_p_frames):
                 p_frame = os.path.join(self.input_seq_path, self.prefix + str(idx) + self.suffix)
@@ -216,6 +235,26 @@ class Evaluator(object):
 
         self.h265_res[bit_rate] = res
 
+    def h266_test(self, bit_rate):
+        command = [self.tave_path, "libvvenc", str(bit_rate), self.input_seq_path,
+                   self.prefix, self.suffix, self.h266_workdir, str(self.num_of_p_frames)]
+        print("****************************************************************************************************************")
+        print("Command: ", " ".join(command))
+        subprocess.run(command)
+
+        command = [self.ffmpeg_path, "-i", self.h266_workdir + self.encoded_h266, self.h266_workdir + r"/decoded_%04d.png"]
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        print("Command: ", " ".join(command))
+        subprocess.run(command)
+        res = []
+        for idx in np.arange(1, self.num_of_p_frames):
+                p_frame = os.path.join(self.input_seq_path, self.prefix + str(idx) + self.suffix)
+                p_frame_out_decom = os.path.join(self.h266_workdir, "decoded_" + str(idx).zfill(4) + self.suffix)
+                p_frame_out_bin = os.path.join(self.h266_workdir, str(idx)+".h266")
+                res.append(self.compare(p_frame, p_frame_out_decom, p_frame_out_bin))
+
+        self.h266_res[bit_rate] = res
+        
     def bpp_psnr(self):
         
         self.plt_our_bpp = []
@@ -231,6 +270,7 @@ class Evaluator(object):
                     self.plt_our_psnr.append(avg_psnr/self.num_of_p_frames)
 
         if self.tave_run:
+            
             # H.264 
             self.plt_h264_bpp = []
             self.plt_h264_psnr = []
@@ -243,6 +283,7 @@ class Evaluator(object):
                 self.plt_h264_bpp.append(avg_bpp/(self.num_of_p_frames-1))
                 self.plt_h264_psnr.append(avg_psnr/(self.num_of_p_frames-1))
             
+            
             self.plt_h265_bpp = []
             self.plt_h265_psnr = []
             for bit_rate in self.h265_bitrate_list:
@@ -254,18 +295,32 @@ class Evaluator(object):
                 self.plt_h265_bpp.append(avg_bpp/(self.num_of_p_frames-1))
                 self.plt_h265_psnr.append(avg_psnr/(self.num_of_p_frames-1))
 
+            self.plt_h266_bpp = []
+            self.plt_h266_psnr = []
+            for bit_rate in self.h266_bitrate_list:
+                avg_bpp = 0
+                avg_psnr = 0
+                for iter in range(self.num_of_p_frames-1):
+                    avg_bpp += self.h266_res[bit_rate][iter]["BPP"]
+                    avg_psnr += self.h266_res[bit_rate][iter]["psnr"]
+                self.plt_h266_bpp.append(avg_bpp/(self.num_of_p_frames-1))
+                self.plt_h266_psnr.append(avg_psnr/(self.num_of_p_frames-1))
+                
+                
     def plot_graph(self, fig_name="", title=''):
         font = {'family': 'Arial', 'weight': 'normal', 'size': 14}
         matplotlib.rc('font', **font)
         line_width = 3
         
         ours, = plt.plot(self.plt_our_bpp, self.plt_our_psnr, "k-o", linewidth=line_width, label=self.proposed_label)
+        
         if self.tave_run:
             h264, = plt.plot(self.plt_h264_bpp, self.plt_h264_psnr, "m--s", linewidth=line_width, label='H.264')
-            h265, = plt.plot(self.plt_h265_bpp, self.plt_h265_psnr, "r--v", linewidth=line_width, label='H.265')
+            h265, = plt.plot(self.plt_h265_bpp, self.plt_h265_psnr, "c--v", linewidth=line_width, label='H.265')
+            h266, = plt.plot(self.plt_h266_bpp, self.plt_h266_psnr, "g--v", linewidth=line_width, label='H.266')
             
         if self.tave_run:
-            plt.legend(handles=[h264, h265, ours], loc=4)
+            plt.legend(handles=[h264, h265, h266, ours], loc=4)
         else:
             plt.legend(handles=[ours], loc=4)
 
@@ -283,16 +338,19 @@ class Evaluator(object):
             if self.tave_run:
                 fieldnames = ['H.264 PSNR', 'H.264 BPP',
                             'H.265 PSNR', 'H.265 BPP',
+                            'H.266 PSNR', 'H.266 BPP',
                             self.proposed_label + " PSNR", self.proposed_label + " BPP"]
                 writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
                 writer.writeheader()
 
-                for h4_psnr, h4_bpp, h5_psnr, h5_bpp, our_psnr, our_bpp in zip(self.plt_h264_psnr, self.plt_h264_bpp,
+                for h4_psnr, h4_bpp, h5_psnr, h5_bpp, h6_psnr, h6_bpp, our_psnr, our_bpp in zip(self.plt_h264_psnr, self.plt_h264_bpp,
                                                                             self.plt_h265_psnr, self.plt_h265_bpp, 
+                                                                            self.plt_h266_psnr, self.plt_h266_bpp, 
                                                                             self.plt_our_psnr ,self.plt_our_bpp,):
                     
                     writer.writerow({'H.264 PSNR': h4_psnr, 'H.264 BPP': h4_bpp,
                                     'H.265 PSNR': h5_psnr,'H.265 BPP': h5_bpp,
+                                    'H.266 PSNR': h5_psnr,'H.266 BPP': h6_bpp,
                                     self.proposed_label + " PSNR": our_psnr, self.proposed_label + " BPP": our_bpp})
                     
             else:

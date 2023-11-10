@@ -64,11 +64,11 @@ git apply ../SVT-AV1/ffmpeg_plugin/0001-Add-ability-for-ffmpeg-to-run-svt-av1.pa
 cd ~/ffmpeg_sources
 git clone https://github.com/fraunhoferhhi/vvenc
 cd vvenc
-sudo make install-release install-prefix=/usr/local
+sudo make install install-prefix=/usr/local
 cd ~/ffmpeg_sources
 git clone https://github.com/fraunhoferhhi/vvdec
 cd vvdec
-sudo make install-release install-prefix=/usr/local
+sudo make install install-prefix=/usr/local
 
 
 git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg

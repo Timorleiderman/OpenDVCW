@@ -36,7 +36,8 @@
 				"njpwerner.autodocstring",
 				"ms-vscode.cpptools",
 				"ms-vscode.cmake-tools",
-				"mhutchie.git-graph"
+				"mhutchie.git-graph",
+				"analytic-signal.preview-mp4"
 			]
 		}
 	}
