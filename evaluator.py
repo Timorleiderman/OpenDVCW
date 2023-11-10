@@ -191,7 +191,7 @@ class Evaluator(object):
             for bit_rate in self.h266_bitrate_list:
                 self.h266_test(bit_rate)
         self.bpp_psnr()
-
+        tf.keras.backend.clear_session()
 
     def h264_test(self, bit_rate):
         command = [self.tave_path, "libx264", str(bit_rate), self.input_seq_path,
@@ -203,7 +203,7 @@ class Evaluator(object):
         command = [self.ffmpeg_path, "-i", self.h264_workdir + self.encoded_h264, self.h264_workdir + r"/decoded_%04d.png"]
 
         subprocess.run(command)
-        print("****************************************************************************************************************")
+        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
         print("Command: ", " ".join(command))
         res = []
         for idx in np.arange(1, self.num_of_p_frames):
@@ -224,7 +224,7 @@ class Evaluator(object):
         command = [self.ffmpeg_path, "-i", self.h265_workdir + self.encoded_h265, self.h265_workdir + r"/decoded_%04d.png"]
 
         subprocess.run(command)
-        print("****************************************************************************************************************")
+        print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
         print("Command: ", " ".join(command))
         res = []
         for idx in np.arange(1, self.num_of_p_frames):
